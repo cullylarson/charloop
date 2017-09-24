@@ -1,0 +1,32 @@
+{
+  "name": "charloop",
+  "version": "0.0.1",
+  "description": "A loop recorder for raspberry pi.",
+  "scripts": {
+    "build": "NODE_ENV=production webpack -p --progress --colors",
+    "watch": "webpack --progress --colors --watch",
+    "client:start": "webpack-dev-server --progress --colors",
+    "server:start": "nodemon ./server/build/js/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cullylarson/charloop.git"
+  },
+  "author": "Cully Larson <cully.larson@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "eslint": "^4.7.2",
+    "eslint-loader": "^1.9.0",
+    "express": "^4.15.4",
+    "nodemon": "^1.12.1",
+    "path": "^0.12.7",
+    "standard": "^10.0.3",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.8.2"
+  }
+}
