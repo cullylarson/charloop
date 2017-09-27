@@ -25,6 +25,7 @@
     "express": "^4.15.4",
     "nodemon": "^1.12.1",
     "path": "^0.12.7",
+    "rpio": "^0.9.17",
     "standard": "^10.0.3",
     "webpack": "^3.6.0",
     "webpack-dev-server": "^2.8.2"
