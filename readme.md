@@ -37,6 +37,75 @@ npm run build
     # this installed version 8.5.0 for me
     ```
 
+1. Make sure the user you're running as is a member of the `gpio` group:
+
+    ```
+    usermod -aG gpio username
+    ```
+
+## Rotary Encoder
+
+The rotary encoder I have ([https://www.adafruit.com/product/377](https://www.adafruit.com/product/377)) has two leads for the push-button and three for the rotary encoder.  Apparently the three rotary encoder pins use Gray code.
+
+### Pinout
+
+```
+ button   button
++--|---------|--+
+|               |
+|               |
+|               |
++--|----|----|--+
+   L   GND   R
+```
+
+### Gray Code
+
+I'm not sure if this is really Gray code. It's just what I figured out messing around with the encoder. I have my `L` and `R` pins set high initially. This is the process I used for reading the code from the encoder:
+
+1. Both pins start high and will remain high until the encoder is turned.
+1. One pin goes low: a turn has been initiated (it doesn't matter which pin goes low)
+1. Both pins are low: about to get the direction the encoder turned.
+1. One pin goes high:
+    - If `L` goes high, it's a clockwise turn
+    - If `R` goes high, it's a counter-clockwise turn
+1. Both pins will go high again and everything resets.
+
+Here are graphs of the patterns. You'll notice that they both pins start and end high; the reset state.
+
+```
+Clockwise turn
+
+L / -__--
+R / --__-
+
+States
+
+L1, R1
+L0, R1
+L0, R0
+L1, R0
+L1, R1
+ 
+```
+
+```
+Counter-clockwise turn
+
+L / --__-
+R / -__--
+
+States
+
+L1, R1
+L1, R0
+L0, R0
+L0, R1
+L1, R1
+```
+
+This lets you build a state machine that works with `rpio`'s polling mechanism, where the direction is read at the end, just before both pins go high again.
+
 ## References
 
 - [Copy image to SD card (Mac)](https://www.raspberrypi.org/documentation/installation/installing-images/mac.md)
