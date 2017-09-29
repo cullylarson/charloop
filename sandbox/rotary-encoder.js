@@ -88,69 +88,6 @@ const changed = (() => {
     }
 })()
 
-/*
-function changed(pin) {
-    disablePolling()
-    if(inLoop) return
-    inLoop = true
-
-    let record = []
-    let currentL = null
-    let currentR = null
-    let lastL = null
-    let lastR = null
-    let sameCount = 0
-
-    while(true) {
-        currentL = rpio.read(pins.left)
-        currentR = rpio.read(pins.right)
-
-        if(currentL === lastL && currentR === lastR) sameCount++
-        if(sameCount > 1000) break;
-
-        record.push({left: currentL, right: currentR})
-        lastL = currentL
-        lastR = currentR
-        rpio.msleep(1)
-    }
-
-    printRecord(record)
-    inLoop = false
-    enablePolling()
-}
-
-function disablePolling() {
-    rpio.poll(pins.right, null);
-    rpio.poll(pins.left, null);
-}
-
-function enablePolling() {
-    rpio.poll(pins.right, changed, rpio.POLL_BOTH);
-    rpio.poll(pins.left, changed, rpio.POLL_BOTH);
-}
-
-function printRecord(record) {
-    let lefts = ""
-    let rights = ""
-    let lastLeft = null
-    let lastRight = null
-
-    for(let i = 0; i < record.length; i++) {
-        if(record[i].left !== lastLeft || record[i].right !== lastRight) {
-            lefts += record[i].left ? '-' : '_'
-            rights += record[i].right ? '-' : '_'
-        }
-
-        lastLeft = record[i].left
-        lastRight = record[i].right
-    }
-
-    console.log("L / " + lefts)
-    console.log("R / " + rights)
-    console.log('--------------')
-}
-*/
-
 rpio.open(pins.right, rpio.INPUT, rpio.PULL_UP);
 rpio.open(pins.left, rpio.INPUT, rpio.PULL_UP);
 rpio.open(pins.push, rpio.INPUT, rpio.PULL_UP);
