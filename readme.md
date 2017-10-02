@@ -86,7 +86,7 @@ L0, R1
 L0, R0
 L1, R0
 L1, R1
- 
+
 ```
 
 ```
@@ -106,9 +106,47 @@ L1, R1
 
 This lets you build a state machine that works with `rpio`'s polling mechanism, where the direction is read at the end, just before both pins go high again.
 
+## Parts List
+
+- [Raspberry Pi 3 - Model B](https://www.adafruit.com/product/3055)
+- [Analog to Digital Converter - MCP3002](https://www.sparkfun.com/products/8636)
+- [SparkFun microB USB Breakout](https://www.sparkfun.com/products/12035)
+- [2.8" TFT Display with Resistive Touchscreen](https://www.adafruit.com/product/1774)
+- [Adafruit 50 pin 0.5mm pitch FPC Adapter](https://www.adafruit.com/product/1492)
+- [50-pin 0.5mm pitch top-contact FPC SMT Connector](https://www.adafruit.com/product/1773)
+- [Rotary Encoder](https://www.adafruit.com/product/377)
+- [Rail-to-Rail Op Amp](https://www.adafruit.com/product/808)
+
 ## References
+
+### Raspberry Pi
 
 - [Copy image to SD card (Mac)](https://www.raspberrypi.org/documentation/installation/installing-images/mac.md)
 - [Enable headless SSH](https://hackernoon.com/raspberry-pi-headless-install-462ccabd75d0)
 - [Set up Chromium kiosk mode on Raspbian Lite](https://tamarisk.it/raspberry-pi-kiosk-mode-using-raspbian-lite/)
+- [Raspberry Pi pinout](https://pinout.xyz/)
+- [A guitar pedal made with Raspberry Pi](https://www.electrosmash.com/pedal-pi)
+- [Guitar pedal curcuit diagram](https://www.electrosmash.com/forum/pedal-pi/206-pedal-pi-circuit-analysis)
+
+### Node
+
 - [Installing nvm on Raspberry Pi](https://github.com/creationix/nvm)
+- [Raspi node library (node-rpio)](https://github.com/jperkin/node-rpio)
+
+### TFT Display
+
+- [Some guy using a TFT display with a Raspi](http://www.whence.com/rpi/)
+- [Adafruit breakout board for the TFT display I used](https://www.adafruit.com/product/1770)
+- [Schematic for the Adafruit breakout board](https://learn.adafruit.com/adafruit-2-8-tft-touch-shield-v2/downloads)
+- [Using the Adafruit breakout board/pinout/wiring](https://learn.adafruit.com/adafruit-2-dot-8-color-tft-touchscreen-breakout-v2/)
+
+### WAV Files
+
+- WAV file format
+    - [http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html](http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html)
+    - [http://www.topherlee.com/software/pcm-tut-wavformat.html](http://www.topherlee.com/software/pcm-tut-wavformat.html)
+    - [http://soundfile.sapp.org/doc/WaveFormat/](http://soundfile.sapp.org/doc/WaveFormat/)
+- [SoX linux command](http://sox.sourceforge.net/sox.html)
+- [A node library that uses SoX. Code is a good reference for that command.](https://github.com/substack/baudio)
+
+
