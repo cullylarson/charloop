@@ -106,6 +106,32 @@ L1, R1
 
 This lets you build a state machine that works with `rpio`'s polling mechanism, where the direction is read at the end, just before both pins go high again.
 
+## TFT Display
+
+1. These are the pin connections I used:
+
+    Description | TFT Pin | Raspi Pin
+    --- | --- | ---
+    TFT Data Out (MISO) | 33 | 21
+    Clock (SCLK) | 37 | 23
+    TFT Data In (MOSI) | 34 | 19
+    D/C | 36 | 18
+    Reset | 10 | 16
+    Chip Select | 38 | 24
+
+1. Add the following to the end of `/boot/config.txt`:
+
+    ```
+    # TFT display
+    dtoverlay=rpi-display
+    dtparam=rotate=0
+    dtparam=speed=10000000
+    dtparam=xohms=100
+    dtparam=debug=4
+    ```
+
+1. Restart
+
 ## Parts List
 
 - [Raspberry Pi 3 - Model B](https://www.adafruit.com/product/3055)
@@ -135,6 +161,8 @@ This lets you build a state machine that works with `rpio`'s polling mechanism, 
 
 ### TFT Display
 
+- [Set up a TFT display using Raspi, without kernel compile/module](https://www.raspberrypi.org/forums/viewtopic.php?p=1041032&sid=4cb043cb2d40b23e2e3464e0885018fe#p1041032)
+- [Another setup TT display](http://lallafa.de/blog/2015/03/fbtft-setup-on-modern-raspbian/)
 - [Some guy using a TFT display with a Raspi](http://www.whence.com/rpi/)
 - [Adafruit breakout board for the TFT display I used](https://www.adafruit.com/product/1770)
 - [Schematic for the Adafruit breakout board](https://learn.adafruit.com/adafruit-2-8-tft-touch-shield-v2/downloads)
