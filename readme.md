@@ -119,6 +119,8 @@ This lets you build a state machine that works with `rpio`'s polling mechanism, 
     Reset | 10 | 16
     Chip Select | 38 | 24
 
+1. Enable SPI on the Raspberry Pi by uncommenting the `dtparam=spi=on` line in `/boot/config.txt`.
+
 1. Add the following to the end of `/boot/config.txt`:
 
     ```
@@ -128,6 +130,12 @@ This lets you build a state machine that works with `rpio`'s polling mechanism, 
     dtparam=speed=10000000
     dtparam=xohms=100
     dtparam=debug=4
+    ```
+
+1. Add the following the end of the line in `/boot/cmdline.txt to` (right after `rootwait`):
+
+    ```
+    fbcon=map:10 fbcon=font:VGA8x8 logo.nologo
     ```
 
 1. Restart
