@@ -159,7 +159,7 @@ This lets you build a state machine that works with `rpio`'s polling mechanism, 
 - [Analog to Digital Converter - MCP3002](https://www.sparkfun.com/products/8636)
 - [SparkFun microB USB Breakout](https://www.sparkfun.com/products/12035)
 - [2.8" TFT Display with Resistive Touchscreen](https://www.adafruit.com/product/1774)
-- [Adafruit 50 pin 0.5mm pitch FPC Adapter](https://www.adafruit.com/product/1492)
+- [Adafruit 50 pin 0.5mm pitch FPC Adapter](https://www.adafruit.com/product/1492). The pin numbering on this is reversed from what the pins will actually be when you plug in the ribbon cable for the 2.8" display. This may not be true of all displays, so check the ribbon cable and connector before soldering stuff.
 - [50-pin 0.5mm pitch top-contact FPC SMT Connector](https://www.adafruit.com/product/1773)
 - [Rotary Encoder](https://www.adafruit.com/product/377)
 - [Rail-to-Rail Op Amp](https://www.adafruit.com/product/808)
