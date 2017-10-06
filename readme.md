@@ -130,7 +130,7 @@ This lets you build a state machine that works with `rpio`'s polling mechanism, 
 1. Edit `/etc/modprobe.d/fbtft.conf` and add the following:
 
     ```
-    options fbtft_device name=adafruit28 cs=0 gpios=reset:23,dc:24 rotate=270
+    options fbtft_device name=adafruit28 cs=0 gpios=reset:23,dc:24 rotate=0
     ```
 
 1. Edit `/etc/modules-load.d/fbtft.conf` and add:
