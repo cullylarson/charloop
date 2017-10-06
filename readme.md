@@ -119,26 +119,39 @@ This lets you build a state machine that works with `rpio`'s polling mechanism, 
     Reset | 10 | 16
     Chip Select | 38 | 24
 
-1. Enable SPI on the Raspberry Pi by uncommenting the `dtparam=spi=on` line in `/boot/config.txt`.
-
-1. Add the following to the end of `/boot/config.txt`:
+1. See list of supported devices for module:
 
     ```
-    # TFT display
-    dtoverlay=rpi-display
-    dtparam=rotate=0
-    dtparam=speed=10000000
-    dtparam=xohms=100
-    dtparam=debug=4
+    sudo modprobe fbtft_device name=list; dmesg | tail -50
     ```
 
-1. Add the following the end of the line in `/boot/cmdline.txt to` (right after `rootwait`):
+    We want `adafruit28`
+
+1. Edit `/etc/modprobe.d/fbtft.conf` and add the following:
+
+    ```
+    options fbtft_device name=adafruit28 cs=0 gpios=reset:23,dc:24 rotate=270
+    ```
+
+1. Edit `/etc/modules-load.d/fbtft.conf` and add:
+
+    ```
+    spi-bcm2835
+    fbtft_device
+    ```
+
+1. Add the following the end of the line in `/boot/cmdline.txt` (right after `rootwait`)
 
     ```
     fbcon=map:10 fbcon=font:VGA8x8 logo.nologo
     ```
 
+1. For a better console font: `sudo dpkg-reconfigure console-setup` and select: _UTF 8 &gt; Guess optimal... &gt; Terminus &gt; 6x12_
+
+1. Turn on console output: `sudo con2fbmap 1 1`
+
 1. Restart
+
 
 ## Parts List
 
@@ -169,6 +182,7 @@ This lets you build a state machine that works with `rpio`'s polling mechanism, 
 
 ### TFT Display
 
+- [TFT display using a module](https://github.com/notro/fbtft/wiki/fbtft_device)
 - [Set up a TFT display using Raspi, without kernel compile/module](https://www.raspberrypi.org/forums/viewtopic.php?p=1041032&sid=4cb043cb2d40b23e2e3464e0885018fe#p1041032)
 - [Another setup TT display](http://lallafa.de/blog/2015/03/fbtft-setup-on-modern-raspbian/)
 - [Some guy using a TFT display with a Raspi](http://www.whence.com/rpi/)
