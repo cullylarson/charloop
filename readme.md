@@ -211,6 +211,39 @@ I set things up to login to a specific user on startup and run the project app.
     cd /home/app/charloop && node app.js
     ```
 
+### Custom boot splash screen
+
+1. Install `fbi`: `apt-get install fbi`
+
+1. Create `/etc/systemd/system/splashscreen.service` with:
+
+    ```
+    [Unit]
+    Description=Splash screen
+    DefaultDependencies=no
+    After=local-fs.target
+
+    [Service]
+    ExecStart=/usr/bin/fbi --noverbose -a /opt/splash.png
+    StandardInput=tty
+    StandardOutput=tty
+
+    [Install]
+    WantedBy=sysinit.target
+    ```
+
+1. Copy your splash image to `/opt/splash.png`. Make it `240x320` to exactly fit the screen.
+
+1. Enable the service: `systemctl enable splashscreen`
+
+### Remove boot text
+
+This might remove some: edit `/boot/cmdline.txt` and add:
+
+    ```
+    quiet loglevel=0
+    ```
+
 ## Parts List
 
 - [Raspberry Pi 3 - Model B](https://www.adafruit.com/product/3055)
@@ -247,6 +280,10 @@ I set things up to login to a specific user on startup and run the project app.
 - [Adafruit breakout board for the TFT display I used](https://www.adafruit.com/product/1770)
 - [Schematic for the Adafruit breakout board](https://learn.adafruit.com/adafruit-2-8-tft-touch-shield-v2/downloads)
 - [Using the Adafruit breakout board/pinout/wiring](https://learn.adafruit.com/adafruit-2-dot-8-color-tft-touchscreen-breakout-v2/)
+
+### Startup
+
+- [Create a splash screen](https://yingtongli.me/blog/2016/12/21/splash.html)
 
 ### WAV Files
 
