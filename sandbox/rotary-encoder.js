@@ -6,8 +6,6 @@ const pins = {
     push: 15,
 }
 
-let inLoop = false
-
 rpio.init({
     gpiomem: true, /* Use /dev/gpiomem */
     mapping: 'physical', /* Use the P1-P40 numbering scheme */
@@ -88,11 +86,11 @@ const changed = (() => {
     }
 })()
 
-rpio.open(pins.right, rpio.INPUT, rpio.PULL_UP);
-rpio.open(pins.left, rpio.INPUT, rpio.PULL_UP);
-rpio.open(pins.push, rpio.INPUT, rpio.PULL_UP);
+rpio.open(pins.right, rpio.INPUT, rpio.PULL_UP)
+rpio.open(pins.left, rpio.INPUT, rpio.PULL_UP)
+rpio.open(pins.push, rpio.INPUT, rpio.PULL_UP)
 
-rpio.poll(pins.push, pushed, rpio.POLL_UP);
+rpio.poll(pins.push, pushed, rpio.POLL_UP)
 
-rpio.poll(pins.right, changed, rpio.POLL_BOTH);
-rpio.poll(pins.left, changed, rpio.POLL_BOTH);
+rpio.poll(pins.right, changed, rpio.POLL_BOTH)
+rpio.poll(pins.left, changed, rpio.POLL_BOTH)
