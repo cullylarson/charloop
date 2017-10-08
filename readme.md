@@ -152,6 +152,64 @@ This lets you build a state machine that works with `rpio`'s polling mechanism, 
 
 1. Restart
 
+### Sending text to the screen via SSH
+
+To output to the screen, modify permissions on `/dev/tty1`:
+
+```
+sudo chmod 666 /dev/tty1
+```
+
+Send text to the screen via ssh:
+
+```
+echo -ne "asdf" > /dev/tty1
+```
+
+Wake the screen up if it's gone to sleep:
+
+```
+echo -ne "\033[9;0]" > /dev/tty1
+```
+
+Clear the screen:
+
+```
+echo -ne "\033[2J" > /dev/tty1
+```
+
+Disable the blinking cursor:
+
+```
+echo -ne '\033[?17;0;0c' > /dev/tty1
+```
+
+### Disable screen blanking/sleep
+
+Edit `/boot/cmdline.txt` and add this to the end of the line:
+
+```
+consoleblank=0
+```
+
+## Startup
+
+I set things up to login to a specific user on startup and run the project app.
+
+1. Automatically login to the `app` user, edit `/etc/systemd/system/getty.target.wants/getty@tty1.service` and add this line under `[Service]`:
+
+    ```
+    ExecStart=-/sbin/agetty --autologin app --noclear %I $TERM
+    ```
+
+1. Run a specific program, add this to end of `app`'s `.bashrc` file:
+
+    ```
+    # clear the screen
+    echo -ne "\033[2J"
+    # start the app
+    cd /home/app/charloop && node app.js
+    ```
 
 ## Parts List
 
