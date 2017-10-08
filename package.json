@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "description": "A loop recorder for raspberry pi.",
   "scripts": {
-    "build": "NODE_ENV=production webpack -p --progress --colors",
+    "build": "npm run clean && NODE_ENV=production webpack -p --progress --colors",
+    "clean": "rm -rf build",
     "watch": "webpack --progress --colors --watch",
-    "client:start": "webpack-dev-server --progress --colors",
-    "server:start": "nodemon ./server/build/js/app.js"
+    "dev:start": "nodemon ./build/app.js"
   },
   "repository": {
     "type": "git",
@@ -23,12 +23,10 @@
     "blessed": "^0.1.81",
     "eslint": "^4.7.2",
     "eslint-loader": "^1.9.0",
-    "express": "^4.15.4",
     "nodemon": "^1.12.1",
     "path": "^0.12.7",
     "rpio": "^0.9.17",
     "standard": "^10.0.3",
-    "webpack": "^3.6.0",
-    "webpack-dev-server": "^2.8.2"
+    "webpack": "^3.6.0"
   }
 }

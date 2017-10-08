@@ -3,5 +3,4 @@
 /node_modules
 /npm-debug.log
 
-/client/build
-/server/build
+/build
