@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "blessed": "^0.1.81",
+    "detect-rpi": "^1.2.0",
     "eslint": "^4.7.2",
     "eslint-watch": "^3.1.2",
     "path": "^0.12.7",
