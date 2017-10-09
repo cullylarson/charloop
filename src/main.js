@@ -1,5 +1,6 @@
-const RotaryEncoder = require('./rotary-encoder')
 const rpio = require('rpio')
+const RotaryEncoder = require('./rotary-encoder')
+const Menu = require('./menu')
 
 rpio.init({
     gpiomem: true, /* Use /dev/gpiomem */
@@ -12,6 +13,7 @@ const rotaryMain = RotaryEncoder(rpio, {
     push: 15,
 })
 
-rotaryMain.on('push', () => console.log('push'))
-rotaryMain.on('left', () => console.log('left'))
-rotaryMain.on('right', () => console.log('right'))
+const menu = Menu()
+
+rotaryMain.on('left', () => menu.trigger('up'))
+rotaryMain.on('right', () => menu.trigger('down'))
