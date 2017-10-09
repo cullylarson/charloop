@@ -13,7 +13,6 @@ module.exports = function() {
     program.hideCursor()
 
     const screen = blessed.screen({
-        terminal: 'xterm-256color',
     })
 
     const list = blessed.list({
