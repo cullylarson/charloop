@@ -202,6 +202,8 @@ I set things up to login to a specific user on startup and run the project app.
     ExecStart=-/sbin/agetty --autologin app --noclear %I $TERM
     ```
 
+1. Enable the service: `systemctl enable getty@tty1`
+
 1. Run a specific program, add this to end of `app`'s `.bashrc` file:
 
     ```
@@ -236,12 +238,35 @@ I set things up to login to a specific user on startup and run the project app.
 
 1. Enable the service: `systemctl enable splashscreen`
 
-### Remove boot text
+### Remove boot/shutdown text
 
-This might remove some: edit `/boot/cmdline.txt` and add:
+1. This might remove some: edit `/boot/cmdline.txt` and add:
 
     ```
-    quiet loglevel=0
+    quiet loglevel=3
+    ```
+
+1. This will clear the screen after everything else is run, so at least you see less text after the splash screen goes away. Add this to the end of `etc/rc.local`:
+
+    ```
+    # clears the screen
+    echo -ne "\033[2J"
+    ```
+
+1. Disable the motd. Edit `/etc/pam.d/login`, comment out these lines:
+
+    ```
+    #session    optional   pam_lastlog.so
+    #session    optional   pam_motd.so motd=/run/motd.dynamic
+    #session    optional   pam_motd.so noupdate
+    #session    optional   pam_mail.so standard
+    ```
+
+1. Remove some extra login messages and clear the screen on the login prompt:
+
+    ```
+    sudo su -
+    clear > /etc/issue
     ```
 
 ## Parts List
