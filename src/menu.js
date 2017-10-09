@@ -49,12 +49,23 @@ module.exports = function() {
         'ten',
     ])
 
+    screen.on('keypress', (str, key) => {
+        if(key.ctrl && key.name === 'c') bus.trigger('exit')
+        else if(key.name === 'up') bus.trigger('up')
+        else if(key.name === 'k') bus.trigger('up')
+        else if(key.name === 'down') bus.trigger('down')
+        else if(key.name === 'j') bus.trigger('down')
+        else if(key.name === 'enter') bus.trigger('enter')
+        else if(key.name === 'l') bus.trigger('enter')
+    })
+
     list.select(0)
 
     bus.on('up', () => {
         list.up(1)
         screen.render()
     })
+
     bus.on('down', () => {
         list.down(1)
         screen.render()

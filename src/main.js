@@ -1,11 +1,7 @@
-const readline = require('readline')
 const isPi = require('detect-rpi')
 const RotaryEncoder = require('./rotary-encoder')
 const Menu = require('./menu')
 const Bus = require('./bus')
-
-readline.emitKeypressEvents(process.stdin)
-process.stdin.setRawMode(true)
 
 const rpio = isPi()
     ? require('rpio')
@@ -30,3 +26,5 @@ const menu = Menu()
 
 rotaryMain.on('left', () => menu.trigger('up'))
 rotaryMain.on('right', () => menu.trigger('down'))
+
+menu.on('exit', () => process.exit())
