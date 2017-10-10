@@ -4,7 +4,13 @@ module.exports = function(rpio, pins) {
     const bus = Bus()
 
     function pushed(pin) {
-        if(pin === pins.push) bus.trigger('push')
+        if(pin !== pins.push) return
+
+        // wait a bit to make sure we aren't bouncing
+        rpio.msleep(20)
+        if(rpio.read(pin)) return
+
+        bus.trigger('push')
     }
 
     const changed = (() => {
