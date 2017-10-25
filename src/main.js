@@ -3,6 +3,7 @@ const isPi = require('detect-rpi')
 const RotaryEncoder = require('./rotary-encoder')
 const Menu = require('./menu')
 const Bus = require('./bus')
+const {TrackList, Track} = require('./tracks')
 const {record} = require('./audio')
 
 const rpio = isPi()
@@ -24,10 +25,26 @@ const rotaryMain = isPi()
     })
     : Bus()
 
-const menu = Menu()
+const trackList = TrackList()
+const screen = Menu(trackList)
+trackList.addAll([
+    Track('1', 'one.wav'),
+    Track('2', 'two.wav'),
+    Track('3', 'three.wav'),
+])
 
-rotaryMain.on('left', () => menu.trigger('up'))
-rotaryMain.on('right', () => menu.trigger('down'))
+screen.on('keypress', (str, key) => {
+    if(key.ctrl && key.name === 'c') process.exit()
+    else if(key.name === 'up') trackList.up()
+    else if(key.name === 'k') trackList.up()
+    else if(key.name === 'down') trackList.down()
+    else if(key.name === 'j') trackList.down()
+    else if(key.name === 'enter') trackList.add(Track('asdf', 'foo'))
+    else if(key.name === 'l') trackList.add(Track('asdf', 'foo'))
+})
+
+rotaryMain.on('left', trackList.up)
+rotaryMain.on('right', trackList.down)
 
 let recording
 
@@ -42,5 +59,3 @@ rotaryMain.on('push', () => {
         recording = record(path.join(__dirname, '..', 'output', 'test.wav'))
     }
 })
-
-menu.on('exit', () => process.exit())

@@ -1,13 +1,10 @@
 const blessed = require('blessed')
-const Bus = require('./bus')
 
 const colors = {
     HotPink2: [215, 95, 175],
 }
 
-module.exports = function() {
-    const bus = Bus()
-
+module.exports = function(trackList) {
     const program = blessed()
     program.alternateBuffer()
     program.hideCursor()
@@ -36,42 +33,24 @@ module.exports = function() {
         },
     })
 
-    list.setItems([
-        'one',
-        'two',
-        'three',
-        'four',
-        'five',
-        'six',
-        'seven',
-        'eight',
-        'nine',
-        'ten',
-    ])
+    list.setItems([])
 
-    screen.on('keypress', (str, key) => {
-        if(key.ctrl && key.name === 'c') bus.trigger('exit')
-        else if(key.name === 'up') bus.trigger('up')
-        else if(key.name === 'k') bus.trigger('up')
-        else if(key.name === 'down') bus.trigger('down')
-        else if(key.name === 'j') bus.trigger('down')
-        else if(key.name === 'enter') bus.trigger('enter')
-        else if(key.name === 'l') bus.trigger('enter')
-    })
-
-    list.select(0)
-
-    bus.on('up', () => {
-        list.up(1)
+    trackList.bus.on('add', ({idx, track}) => {
+        list.insertItem(idx, track.name)
         screen.render()
     })
 
-    bus.on('down', () => {
-        list.down(1)
+    trackList.bus.on('remove', ({idx}) => {
+        list.spliceItem(idx, 1)
+        screen.render()
+    })
+
+    trackList.bus.on('select', ({idx}) => {
+        list.select(idx)
         screen.render()
     })
 
     screen.render()
 
-    return bus
+    return screen
 }
