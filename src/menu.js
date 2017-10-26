@@ -1,9 +1,50 @@
 const blessed = require('blessed')
+const chalk = require('chalk')
 
 const colors = {
     HotPink2: [215, 95, 175],
 }
 
+const StandardBList = (screen, {label}) => {
+    blessed.Box({
+        parent: screen,
+        tags: true,
+        content: `{center}{bold}${label}{/}{/center}`,
+        top: 0,
+        height: 1,
+        width: '100%',
+        style: {
+            fg: 'yellow',
+        },
+    })
+
+    return blessed.List({
+        parent: screen,
+        top: 1,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        align: 'center',
+        border: {
+            type: 'line',
+        },
+        style: {
+            item: {
+                fg: 'white',
+            },
+            selected: {
+                fg: 'white',
+                bg: colors.HotPink2,
+            },
+        },
+    })
+}
+
+module.exports = {
+    StandardBList,
+}
+
+/*
 module.exports = function(trackList) {
     const program = blessed()
     program.alternateBuffer()
@@ -54,3 +95,4 @@ module.exports = function(trackList) {
 
     return screen
 }
+*/

@@ -1,9 +1,10 @@
 const path = require('path')
 const isPi = require('detect-rpi')
 const RotaryEncoder = require('./rotary-encoder')
-const Menu = require('./menu')
+const {StandardBList} = require('./menu')
 const Bus = require('./bus')
-const {TrackList, Track} = require('./tracks')
+const Router = require('./router')
+const {List, Item} = require('./list')
 const {record} = require('./audio')
 
 const rpio = isPi()
@@ -25,27 +26,108 @@ const rotaryMain = isPi()
     })
     : Bus()
 
-const trackList = TrackList()
-const screen = Menu(trackList)
-trackList.addAll([
-    Track('1', 'one.wav'),
-    Track('2', 'two.wav'),
-    Track('3', 'three.wav'),
-])
+const navBus = Bus()
 
-screen.on('keypress', (str, key) => {
-    if(key.ctrl && key.name === 'c') process.exit()
-    else if(key.name === 'up') trackList.up()
-    else if(key.name === 'k') trackList.up()
-    else if(key.name === 'down') trackList.down()
-    else if(key.name === 'j') trackList.down()
-    else if(key.name === 'enter') trackList.add(Track('asdf', 'foo'))
-    else if(key.name === 'l') trackList.add(Track('asdf', 'foo'))
+rotaryMain.on('left', () => navBus.trigger('up'))
+rotaryMain.on('right', () => navBus.trigger('down'))
+rotaryMain.on('push', () => navBus.trigger('enter'))
+
+navBus.on('exit', () => process.exit())
+
+const router = Router(navBus)
+
+router.add('/', (go, screen, nav, data) => {
+    const bList = StandardBList(screen, {label: 'charloop'})
+
+    const list = List(bList)
+
+    list.addAll([
+        Item('New Song', {
+            onEnter: () => {
+                go('/song/new', {})
+            }
+        }),
+        Item('Your Songs', {
+            onEnter: () => {
+                go('/song/list', {})
+            }
+        }),
+    ])
+
+    nav.on('up', () => {
+        list.up()
+        screen.render()
+    })
+
+    nav.on('down', () => {
+        list.down()
+        screen.render()
+    })
+
+    nav.on('enter', () => list.getSelected().data.onEnter())
+
+    screen.render()
 })
 
-rotaryMain.on('left', trackList.up)
-rotaryMain.on('right', trackList.down)
+router.add('/song/new', (go, screen, nav, data) => {
+    const bList = StandardBList(screen, {label: 'new song'})
 
+    const list = List(bList)
+
+    list.addAll([
+        Item('Back', {
+            onEnter: () => {
+                go('/', {})
+            }
+        }),
+    ])
+
+    nav.on('up', () => {
+        list.move(-1)
+        screen.render()
+    })
+
+    nav.on('down', () => {
+        list.move(1)
+        screen.render()
+    })
+
+    nav.on('enter', () => list.getSelected().data.onEnter())
+
+    screen.render()
+})
+
+router.add('/song/list', (go, screen, nav, data) => {
+    const bList = StandardBList(screen, {label: 'your songs'})
+
+    const list = List(bList)
+
+    list.addAll([
+        Item('Back', {
+            onEnter: () => {
+                go('/', {})
+            }
+        }),
+    ])
+
+    nav.on('up', () => {
+        list.move(-1)
+        screen.render()
+    })
+
+    nav.on('down', () => {
+        list.move(1)
+        screen.render()
+    })
+
+    nav.on('enter', () => list.getSelected().data.onEnter())
+
+    screen.render()
+})
+
+router.go('/', {})
+
+/*
 let recording
 
 rotaryMain.on('push', () => {
@@ -59,3 +141,4 @@ rotaryMain.on('push', () => {
         recording = record(path.join(__dirname, '..', 'output', 'test.wav'))
     }
 })
+*/
