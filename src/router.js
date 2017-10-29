@@ -15,10 +15,14 @@ module.exports = (bus) => {
         else if(key.name === 'j') bus.trigger('nav-down')
         else if(key.name === 'enter') bus.trigger('nav-enter')
         else if(key.name === 'l') bus.trigger('nav-enter')
+        else if(key.name === 'r') bus.trigger('start-recording')
+        else if(key.name === 's') bus.trigger('stop-recording')
     })
 
     const router = {
-        add: (label, cb) => routes[label] = cb,
+        add: (label, cb) => {
+            routes[label] = cb
+        },
         go: (label, data) => {
             // clear the screen
             screen.children.forEach(screen.remove)
@@ -37,7 +41,7 @@ module.exports = (bus) => {
             }, 0)
 
             routes[label](routeGo, screen, routerBus, data)
-        }
+        },
     }
 
     return router

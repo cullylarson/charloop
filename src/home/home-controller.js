@@ -10,12 +10,12 @@ function index(go, screen, bus, data) {
         Item('New Song', {
             onEnter: () => {
                 go('/song/create', {})
-            }
+            },
         }),
         Item('Your Songs', {
             onEnter: () => {
                 go('/song/list', {})
-            }
+            },
         }),
     ])
 

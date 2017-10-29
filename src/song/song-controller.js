@@ -10,7 +10,7 @@ function create(go, screen, bus, data) {
         Item('Back', {
             onEnter: () => {
                 go('/', {})
-            }
+            },
         }),
     ])
 
@@ -38,7 +38,7 @@ function list(go, screen, bus, data) {
         Item('Back', {
             onEnter: () => {
                 go('/', {})
-            }
+            },
         }),
     ])
 

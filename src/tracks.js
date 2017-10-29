@@ -37,7 +37,7 @@ function TrackList() {
         },
         select: (idx) => {
             if(idx < 0) selectedIdx = 0
-            else if(idx > (list.length - 1)) selectedIdx = list.length -1
+            else if(idx > (list.length - 1)) selectedIdx = list.length - 1
             else selectedIdx = idx
             bus.trigger('select', selectedIdx)
         },

@@ -3,7 +3,7 @@ const isPi = require('detect-rpi')
 const RotaryEncoder = require('./rotary-encoder')
 const Bus = require('./bus')
 const Router = require('./router')
-const {record} = require('./audio')
+// const {record} = require('./audio')
 const homeController = require('./home/home-controller')
 const songController = require('./song/song-controller')
 

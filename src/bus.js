@@ -8,7 +8,7 @@ module.exports = function() {
         },
 
         offAll: (cb) => {
-            const idx = allCbs.indexOf(cb);
+            const idx = allCbs.indexOf(cb)
             if(idx === -1) return
 
             // remove the callback
@@ -21,9 +21,9 @@ module.exports = function() {
         },
 
         off: (label, cb) => {
-            if(!cbs.hasOwnProperty(labe)) return
+            if(!cbs.hasOwnProperty(label)) return
 
-            const idx = cbs[label].indexOf(cb);
+            const idx = cbs[label].indexOf(cb)
             if(idx === -1) return
 
             // remove the callback

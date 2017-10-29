@@ -1,5 +1,5 @@
 const blessed = require('blessed')
-const chalk = require('chalk')
+// const chalk = require('chalk')
 
 const colors = {
     HotPink2: [215, 95, 175],
