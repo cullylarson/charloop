@@ -1,11 +1,37 @@
+const fs = require('fs')
 const path = require('path')
 const isPi = require('detect-rpi')
 const RotaryEncoder = require('./rotary-encoder')
 const Bus = require('./bus')
 const Router = require('./router')
+const SongRepository = require('./song/song-repository')
 // const {record} = require('./audio')
 const homeController = require('./home/home-controller')
 const songController = require('./song/song-controller')
+
+// params
+
+if(!process.argv[2]) {
+    console.log('ERROR: You must provide the path to the songs folder.')
+    process.exit(1)
+}
+
+const songsFolder = path.resolve(process.argv[2])
+
+if(!songsFolder) {
+    console.log(`ERROR: Songs folder does not exist (${songsFolder}).`)
+    process.exit(1)
+}
+
+try {
+    fs.accessSync(songsFolder, fs.W_OK)
+}
+catch(e) {
+    console.log(`ERROR: Song folder is not writable (${songsFolder}).`)
+    process.exit(1)
+}
+
+// i/o and controls
 
 const rpio = isPi()
     ? require('rpio')
@@ -26,6 +52,8 @@ const rotaryMain = rpio
     })
     : Bus()
 
+const songRepository = SongRepository(songsFolder)
+
 const bus = Bus()
 
 rotaryMain.on('left', () => bus.trigger('nav-up'))
@@ -34,11 +62,14 @@ rotaryMain.on('push', () => bus.trigger('nav-enter'))
 
 bus.on('exit', () => process.exit())
 
+// routes
+
 const router = Router(bus)
 
 router.add('/', homeController.index)
-router.add('/song/create', songController.create)
-router.add('/song/list', songController.list)
+router.add('/song/create', songController.create(songRepository))
+router.add('/song/list', songController.list(songRepository))
+router.add('/song/view', songController.view(songRepository))
 
 router.go('/', {})
 
