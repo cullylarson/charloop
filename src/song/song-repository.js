@@ -118,6 +118,5 @@ module.exports = function(songsDir) {
     return {
         create,
         get,
-        idExists,
     }
 }
