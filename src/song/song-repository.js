@@ -18,6 +18,9 @@ const {
 
 module.exports = function(songsDir) {
     const cache = {}
+    function cacheSet(song) { cache[song.id] = song }
+    function cacheHas(id) { return !!cache[id] }
+    function cacheGet(id) { return Promise.resolve(cache[id]) }
 
     // find out if an id already exists
     function idExists(id) {
@@ -40,6 +43,10 @@ module.exports = function(songsDir) {
                 songPath,
                 []
             ))
+            .then(song => {
+                cacheSet(song)
+                return song
+            })
             .catch(_ => Promise.reject(Error('Could not create song.')))
     }
 
@@ -76,7 +83,7 @@ module.exports = function(songsDir) {
     }
 
     function get(id) {
-        if(cache[id]) return cache[id]
+        if(cacheHas(id)) return cacheGet(id)
 
         function getTracks(songPath) {
             return promisify(fs.readdir)(songPath)
@@ -106,6 +113,10 @@ module.exports = function(songsDir) {
                 songPath,
                 tracks
             ))
+            .then(song => {
+                cacheSet(song)
+                return song
+            })
             .catch(_ => Promise.reject(Error('Could not get song.')))
     }
 
