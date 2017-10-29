@@ -1,7 +1,7 @@
 const {List, Item} = require('../list')
 const {StandardBList} = require('../menu')
 
-function create(go, screen, nav, data) {
+function create(go, screen, bus, data) {
     const bList = StandardBList(screen, {label: 'new song'})
 
     const list = List(bList)
@@ -14,22 +14,22 @@ function create(go, screen, nav, data) {
         }),
     ])
 
-    nav.on('up', () => {
+    bus.on('nav-up', () => {
         list.move(-1)
         screen.render()
     })
 
-    nav.on('down', () => {
+    bus.on('nav-down', () => {
         list.move(1)
         screen.render()
     })
 
-    nav.on('enter', () => list.getSelected().data.onEnter())
+    bus.on('nav-enter', () => list.getSelected().data.onEnter())
 
     screen.render()
 }
 
-function list(go, screen, nav, data) {
+function list(go, screen, bus, data) {
     const bList = StandardBList(screen, {label: 'your songs'})
 
     const list = List(bList)
@@ -42,17 +42,17 @@ function list(go, screen, nav, data) {
         }),
     ])
 
-    nav.on('up', () => {
+    bus.on('nav-up', () => {
         list.move(-1)
         screen.render()
     })
 
-    nav.on('down', () => {
+    bus.on('nav-down', () => {
         list.move(1)
         screen.render()
     })
 
-    nav.on('enter', () => list.getSelected().data.onEnter())
+    bus.on('nav-enter', () => list.getSelected().data.onEnter())
 
     screen.render()
 }

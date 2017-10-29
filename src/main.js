@@ -11,14 +11,14 @@ const rpio = isPi()
     ? require('rpio')
     : null
 
-if(isPi()) {
+if(rpio) {
     rpio.init({
         gpiomem: true, /* Use /dev/gpiomem */
         mapping: 'physical', /* Use the P1-P40 numbering scheme */
     })
 }
 
-const rotaryMain = isPi()
+const rotaryMain = rpio
     ? RotaryEncoder(rpio, {
         right: 11,
         left: 13,
@@ -26,15 +26,15 @@ const rotaryMain = isPi()
     })
     : Bus()
 
-const navBus = Bus()
+const bus = Bus()
 
-rotaryMain.on('left', () => navBus.trigger('up'))
-rotaryMain.on('right', () => navBus.trigger('down'))
-rotaryMain.on('push', () => navBus.trigger('enter'))
+rotaryMain.on('left', () => bus.trigger('nav-up'))
+rotaryMain.on('right', () => bus.trigger('nav-down'))
+rotaryMain.on('push', () => bus.trigger('nav-enter'))
 
-navBus.on('exit', () => process.exit())
+bus.on('exit', () => process.exit())
 
-const router = Router(navBus)
+const router = Router(bus)
 
 router.add('/', homeController.index)
 router.add('/song/create', songController.create)

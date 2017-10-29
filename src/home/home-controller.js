@@ -1,7 +1,7 @@
 const {List, Item} = require('../list')
 const {StandardBList} = require('../menu')
 
-function index(go, screen, nav, data) {
+function index(go, screen, bus, data) {
     const bList = StandardBList(screen, {label: 'charloop'})
 
     const list = List(bList)
@@ -19,17 +19,17 @@ function index(go, screen, nav, data) {
         }),
     ])
 
-    nav.on('up', () => {
+    bus.on('nav-up', () => {
         list.up()
         screen.render()
     })
 
-    nav.on('down', () => {
+    bus.on('nav-down', () => {
         list.down()
         screen.render()
     })
 
-    nav.on('enter', () => list.getSelected().data.onEnter())
+    bus.on('nav-enter', () => list.getSelected().data.onEnter())
 
     screen.render()
 }
