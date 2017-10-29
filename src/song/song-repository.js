@@ -68,18 +68,13 @@ module.exports = function(songsDir) {
     */
 
     function generateNewId() {
-        function generateIdIfNotExists() {
-            const id = randomWords({exactly: 4, join: '-'})
-            return idExists(id)
-                .then(exists => exists
-                    ? Promise.resolve(null)
-                    : Promise.resolve(id)
-                )
-        }
-
-        // recursively calls until it gets an id
-        return generateIdIfNotExists()
-            .then(id => id || generateNewId())
+        const id = randomWords({exactly: 4, join: '-'})
+        return idExists(id)
+            .then(exists => exists
+                // recursively calls until it gets an id
+                ? generateNewId()
+                : Promise.resolve(id)
+            )
     }
 
     function get(id) {
