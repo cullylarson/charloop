@@ -1,11 +1,11 @@
 const path = require('path')
 const isPi = require('detect-rpi')
 const RotaryEncoder = require('./rotary-encoder')
-const {StandardBList} = require('./menu')
 const Bus = require('./bus')
 const Router = require('./router')
-const {List, Item} = require('./list')
 const {record} = require('./audio')
+const homeController = require('./home/home-controller')
+const songController = require('./song/song-controller')
 
 const rpio = isPi()
     ? require('rpio')
@@ -36,94 +36,9 @@ navBus.on('exit', () => process.exit())
 
 const router = Router(navBus)
 
-router.add('/', (go, screen, nav, data) => {
-    const bList = StandardBList(screen, {label: 'charloop'})
-
-    const list = List(bList)
-
-    list.addAll([
-        Item('New Song', {
-            onEnter: () => {
-                go('/song/new', {})
-            }
-        }),
-        Item('Your Songs', {
-            onEnter: () => {
-                go('/song/list', {})
-            }
-        }),
-    ])
-
-    nav.on('up', () => {
-        list.up()
-        screen.render()
-    })
-
-    nav.on('down', () => {
-        list.down()
-        screen.render()
-    })
-
-    nav.on('enter', () => list.getSelected().data.onEnter())
-
-    screen.render()
-})
-
-router.add('/song/new', (go, screen, nav, data) => {
-    const bList = StandardBList(screen, {label: 'new song'})
-
-    const list = List(bList)
-
-    list.addAll([
-        Item('Back', {
-            onEnter: () => {
-                go('/', {})
-            }
-        }),
-    ])
-
-    nav.on('up', () => {
-        list.move(-1)
-        screen.render()
-    })
-
-    nav.on('down', () => {
-        list.move(1)
-        screen.render()
-    })
-
-    nav.on('enter', () => list.getSelected().data.onEnter())
-
-    screen.render()
-})
-
-router.add('/song/list', (go, screen, nav, data) => {
-    const bList = StandardBList(screen, {label: 'your songs'})
-
-    const list = List(bList)
-
-    list.addAll([
-        Item('Back', {
-            onEnter: () => {
-                go('/', {})
-            }
-        }),
-    ])
-
-    nav.on('up', () => {
-        list.move(-1)
-        screen.render()
-    })
-
-    nav.on('down', () => {
-        list.move(1)
-        screen.render()
-    })
-
-    nav.on('enter', () => list.getSelected().data.onEnter())
-
-    screen.render()
-})
+router.add('/', homeController.index)
+router.add('/song/create', songController.create)
+router.add('/song/list', songController.list)
 
 router.go('/', {})
 
