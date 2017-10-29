@@ -34,14 +34,10 @@ module.exports = function(songsDir) {
         })
 
     function cacheHasAny() { return Object.keys(cache).length > 0 }
-    function cacheGetAll() { return Promise.resolve(Object.values(cache)) }
+    function cacheGetAll() { return Object.values(cache) }
     function cacheSet(song) { cache[song.id] = song }
     function cacheHas(id) { return !!cache[id] }
-    function cacheGet(id) {
-        return cacheHas(id)
-            ? Promise.resolve(cache[id])
-            : Promise.reject(Error('Song not in cache.'))
-    }
+    function cacheGet(id) { return cache[id] }
 
     // find out if an id already exists
     function idExists(id) {
@@ -102,7 +98,7 @@ module.exports = function(songsDir) {
     }
 
     function getAll() {
-        if(cacheHasAny()) return cacheGetAll()
+        if(cacheHasAny()) return Promise.resolve(cacheGetAll())
 
         function getTracks(songPath) {
             return promisify(fs.readdir)(songPath)
@@ -162,8 +158,9 @@ module.exports = function(songsDir) {
     }
 
     function get(id) {
-        return cacheGet(id)
-            .catch(_ => Promise.reject(Error('Could not get song.')))
+        return cacheHas(id)
+            ? Promise.resolve(cacheGet(id))
+            : Promise.reject(Error('Could not get song.'))
     }
 
     return {
