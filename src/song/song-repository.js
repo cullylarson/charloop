@@ -13,32 +13,11 @@ const {
     replace,
     sort,
     prop,
-    curry,
     descend,
+    head,
 } = require('ramda')
 
-const log = curry((msg, x) => {
-    console.log(msg, x)
-    return x
-})
-
-// assumes cache is always up-tp-date, so there should probably only be one instance of this thing ever
 module.exports = function(songsDir) {
-    const cache = {}
-
-    // prime the cache
-    getAll()
-        .catch(_ => {
-            console.log('Error: Could not load song list.')
-            process.exit(1)
-        })
-
-    function cacheHasAny() { return Object.keys(cache).length > 0 }
-    function cacheGetAll() { return Object.values(cache) }
-    function cacheSet(song) { cache[song.id] = song }
-    function cacheHas(id) { return !!cache[id] }
-    function cacheGet(id) { return cache[id] }
-
     // find out if an id already exists
     function idExists(id) {
         return get(id)
@@ -63,10 +42,6 @@ module.exports = function(songsDir) {
                 songPath,
                 []
             ))
-            .then(song => {
-                cacheSet(song)
-                return song
-            })
             .catch(_ => Promise.reject(Error('Could not create song.')))
     }
 
@@ -98,8 +73,6 @@ module.exports = function(songsDir) {
     }
 
     function getAll() {
-        if(cacheHasAny()) return Promise.resolve(cacheGetAll())
-
         function getTracks(songPath) {
             return promisify(fs.readdir)(songPath)
                 .then(compose(
@@ -146,10 +119,6 @@ module.exports = function(songsDir) {
                         x.createdStamp,
                         x.modifiedStamp
                     ))
-                    .then(song => {
-                        cacheSet(song)
-                        return song
-                    })
                     .catch(_ => Promise.reject(Error('Could not get song.')))
             }))
             .then(xs => Promise.all(xs))
@@ -158,9 +127,13 @@ module.exports = function(songsDir) {
     }
 
     function get(id) {
-        return cacheHas(id)
-            ? Promise.resolve(cacheGet(id))
-            : Promise.reject(Error('Could not get song.'))
+        return getAll()
+            .then(filter(x => x.id === id))
+            .then(x => !x.length
+                ? Promise.reject(Error('Could not get song.'))
+                : head(x)
+            )
+            .catch(_ => Promise.reject(Error('Could not get songs.')))
     }
 
     return {
