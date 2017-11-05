@@ -7,6 +7,7 @@ module.exports = (bus) => {
     const screen = blessed.screen({
     })
 
+    // these are here just for development on not-a-raspi
     screen.on('keypress', (str, key) => {
         if(key.ctrl && key.name === 'c') bus.trigger('exit')
         else if(key.name === 'up') bus.trigger('nav-up')
