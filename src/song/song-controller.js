@@ -12,19 +12,24 @@ const create = (songRepository) => (go, screen, bus, data) => {
 
 const view = (songRepository) => (go, screen, bus, data) => {
     if(!data.id) go('/song/list', {error: "Couldn't find that song!"})
+
     songRepository.get(data.id)
         .then(song => {
-            const bList = StandardBList(screen, {label: song.title})
+            return songRepository.getTracks(song)
+                .then(tracks => ({song, tracks}))
+        })
+        .then(info => {
+            const bList = StandardBList(screen, {label: info.song.title})
 
             const list = List(bList)
 
-            list.addAll([
-                Item('Back', {
-                    onEnter: () => {
-                        go('/song/list', {})
-                    },
-                }),
-            ])
+            list.add(Item('Back', {
+                onEnter: () => {
+                    go('/song/list', {})
+                },
+            }))
+
+            info.tracks.forEach(x => list.add(Item(x.title)))
 
             bus.on('nav-up', () => {
                 list.up()
@@ -47,7 +52,6 @@ const list = (songRepository) => (go, screen, bus, data) => {
     const bList = StandardBList(screen, {label: 'your songs'})
 
     const list = List(bList)
-    const songs = songRepository.getAll()
 
     list.addAll([
         Item('Back', {
@@ -57,7 +61,7 @@ const list = (songRepository) => (go, screen, bus, data) => {
         }),
     ])
 
-    songs
+    songRepository.getAll()
         .then(forEach(x => list.add(Item(x.title, {
             onEnter: () => {
                 go('/song/view', {id: x.id})

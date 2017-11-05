@@ -1,4 +1,4 @@
-function Item(title, data) {
+function Item(title, data = {}) {
     return {title, data}
 }
 
