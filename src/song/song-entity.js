@@ -1,9 +1,8 @@
-module.exports = function(id, title, folder, tracks, createdStamp, modifiedStamp) {
+module.exports = function(id, title, folder, createdStamp, modifiedStamp) {
     return {
         id,
         title,
         folder,
-        tracks,
         createdStamp,
         modifiedStamp,
     }

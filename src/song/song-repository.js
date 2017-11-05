@@ -72,24 +72,30 @@ module.exports = function(songsDir) {
             )
     }
 
-    function getAll() {
-        function getTracks(songPath) {
-            return promisify(fs.readdir)(songPath)
-                .then(compose(
-                    sort(prop('num')),
-                    map(x => Track(
-                        x[1],
-                        parseInt(x[0]),
-                        idToTitle(x[1]),
-                        songPath
-                    )),
-                    map(split('_')), // the track number comes before the _
-                    map(replace(/\.wav$/, '')),
-                    filter(endsWith('.wav'))
-                ))
-                .catch(_ => Promise.reject(Error('Could not read track list.')))
-        }
+    function getTracks(song) {
+        return promisify(fs.readdir)(song.folder)
+            .then(compose(
+                sort(prop('num')),
+                map(filename => {
+                    const {id, num} = compose(
+                        x => ({id: x[1], num: parseInt(x[0])}),
+                        split('_'), // the track number comes before the _
+                        replace(/\.wav$/, '')
+                    )(filename)
 
+                    return Track(
+                        id,
+                        num,
+                        idToTitle(id),
+                        path.join(song.folder, filename)
+                    )
+                }),
+                filter(endsWith('.wav'))
+            ))
+            .catch(_ => Promise.reject(Error('Could not read track list.')))
+    }
+
+    function getAll() {
         return promisify(fs.readdir)(songsDir)
             .then(map(songFolderName => {
                 const songFolder = path.join(songsDir, songFolderName)
@@ -99,27 +105,16 @@ module.exports = function(songsDir) {
                         const id = x[0]
                         const stamps = x[1].split('-')
 
-                        return {
+                        return Song(
                             id,
-                            folder: songFolder,
-                            createdStamp: stamps[0],
-                            modifiedStamp: stamps[1],
-                        }
+                            idToTitle(id),
+                            songFolder,
+                            stamps[0],
+                            stamps[1]
+                        )
                     },
                     split('_')
                 )(songFolderName)
-            }))
-            .then(map(x => {
-                return getTracks(x.folder)
-                    .then(tracks => Song(
-                        x.id,
-                        idToTitle(x.id),
-                        x.folder,
-                        tracks,
-                        x.createdStamp,
-                        x.modifiedStamp
-                    ))
-                    .catch(_ => Promise.reject(Error('Could not get song.')))
             }))
             .then(xs => Promise.all(xs))
             .then(sort(descend(prop('modifiedStamp')))) // show last modified songs first
@@ -140,5 +135,6 @@ module.exports = function(songsDir) {
         create,
         get,
         getAll,
+        getTracks,
     }
 }
