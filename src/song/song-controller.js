@@ -29,7 +29,7 @@ const view = (songRepository) => (go, screen, bus, data) => {
                 },
             }))
 
-            info.tracks.forEach(x => list.add(Item(x.title)))
+            info.tracks.forEach(x => list.add(Item(x.titleWithNum)))
 
             bus.on('nav-up', () => {
                 list.up()
