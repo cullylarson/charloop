@@ -11,7 +11,7 @@ const {
     endsWith,
     split,
     replace,
-    sort,
+    sortBy,
     prop,
     descend,
     head,
@@ -75,7 +75,7 @@ module.exports = function(songsDir) {
     function getTracks(song) {
         return promisify(fs.readdir)(song.folder)
             .then(compose(
-                sort(prop('num')),
+                sortBy(prop('num')),
                 map(filename => {
                     const {id, num} = compose(
                         x => ({id: x[1], num: parseInt(x[0])}),
@@ -117,7 +117,7 @@ module.exports = function(songsDir) {
                 )(songFolderName)
             }))
             .then(xs => Promise.all(xs))
-            .then(sort(descend(prop('modifiedStamp')))) // show last modified songs first
+            .then(sortBy(descend(prop('modifiedStamp')))) // show last modified songs first
             .catch(_ => Promise.reject(Error('Could not get songs.')))
     }
 
