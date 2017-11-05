@@ -1,5 +1,6 @@
 const {List, Item} = require('../list')
 const {StandardBList} = require('../menu')
+const {record} = require('../audio')
 const {
     forEach,
 } = require('ramda')
@@ -12,6 +13,9 @@ const create = (songRepository) => (go, screen, bus, data) => {
 
 const view = (songRepository) => (go, screen, bus, data) => {
     if(!data.id) go('/song/list', {error: "Couldn't find that song!"})
+    const recording = data.recording || null
+    const recordingTrack = data.recordingTrack || null
+    if(recording && !recordingTrack) go('/song/view', {id: data.id, error: 'Started recording without a track. Not sure how that happened. Try again.'})
 
     songRepository.get(data.id)
         .then(song => {
@@ -39,6 +43,29 @@ const view = (songRepository) => (go, screen, bus, data) => {
             bus.on('nav-down', () => {
                 list.down()
                 screen.render()
+            })
+
+            bus.on('start-recording', () => {
+                // already recording
+                if(recording) return
+
+                songRepository.addNextTrack(info.song, info.tracks)
+                    .then(nextTrack => {
+                        go('/song/view', {
+                            id: data.id,
+                            recording: record(nextTrack.filePath),
+                            recordingTrack: nextTrack,
+                        })
+                    })
+                    .catch(_ => go('/song/view', {id: data.id, error: "Coudn't start recording for some reason. Try again."}))
+            })
+
+            bus.on('stop-recording', () => {
+                // not recording
+                if(!recording) return
+
+                recording.stop()
+                go('/song/view', {id: data.id})
             })
 
             bus.on('nav-enter', () => list.getSelected().data.onEnter && list.getSelected().data.onEnter())
