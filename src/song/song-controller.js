@@ -1,5 +1,8 @@
 const {List, Item} = require('../list')
 const {StandardBList} = require('../menu')
+const {
+    forEach,
+} = require('ramda')
 
 const create = (songRepository) => (go, screen, bus, data) => {
     songRepository.create()
@@ -18,22 +21,22 @@ const view = (songRepository) => (go, screen, bus, data) => {
             list.addAll([
                 Item('Back', {
                     onEnter: () => {
-                        go('/', {})
+                        go('/song/list', {})
                     },
                 }),
             ])
 
             bus.on('nav-up', () => {
-                list.move(-1)
+                list.up()
                 screen.render()
             })
 
             bus.on('nav-down', () => {
-                list.move(1)
+                list.down()
                 screen.render()
             })
 
-            bus.on('nav-enter', () => list.getSelected().data.onEnter())
+            bus.on('nav-enter', () => list.getSelected().data.onEnter && list.getSelected().data.onEnter())
 
             screen.render()
         })
@@ -44,6 +47,7 @@ const list = (songRepository) => (go, screen, bus, data) => {
     const bList = StandardBList(screen, {label: 'your songs'})
 
     const list = List(bList)
+    const songs = songRepository.getAll()
 
     list.addAll([
         Item('Back', {
@@ -53,19 +57,25 @@ const list = (songRepository) => (go, screen, bus, data) => {
         }),
     ])
 
+    songs
+        .then(forEach(x => list.add(Item(x.title, {
+            onEnter: () => {
+                go('/song/view', {id: x.id})
+            },
+        }))))
+        .then(_ => screen.render())
+
     bus.on('nav-up', () => {
-        list.move(-1)
+        list.up()
         screen.render()
     })
 
     bus.on('nav-down', () => {
-        list.move(1)
+        list.down()
         screen.render()
     })
 
-    bus.on('nav-enter', () => list.getSelected().data.onEnter())
-
-    screen.render()
+    bus.on('nav-enter', () => list.getSelected().data.onEnter && list.getSelected().data.onEnter())
 }
 
 module.exports = {
