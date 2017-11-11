@@ -1,3 +1,5 @@
+const {colors} = require('./menu')
+
 function Item(title, data = {}) {
     return {title, data}
 }
@@ -5,11 +7,35 @@ function Item(title, data = {}) {
 function List(blessedList) {
     const items = []
     let selectedIdx = 0
+    let styleBeforeEngaged
+    let engaged = false
 
     const manager = {
         add: (item) => {
             items.push(item)
             blessedList.add(item.title)
+        },
+
+        setSelectedTitle: (title) => {
+            blessedList.setItem(selectedIdx, (engaged ? '{bold}' : '') + title + (engaged ? '{/bold}' : ''))
+        },
+
+        engage: () => {
+            engaged = true
+            styleBeforeEngaged = blessedList.style.selected
+
+            blessedList.style.selected = {
+                fg: 'white',
+                bg: colors.CornflowerBlue,
+            }
+
+            // reset the title so it will be bold
+            manager.setSelectedTitle(blessedList.getItem(selectedIdx).getText())
+        },
+
+        disengage: () => {
+            engaged = false
+            if(styleBeforeEngaged) blessedList.style.selected = styleBeforeEngaged
         },
 
         up: () => {

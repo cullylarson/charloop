@@ -1,8 +1,9 @@
-module.exports = function(id, title, folder, createdStamp, modifiedStamp) {
+module.exports = function(id, title, folder, bpm, createdStamp, modifiedStamp) {
     return {
         id,
         title,
         folder,
+        bpm,
         createdStamp,
         modifiedStamp,
     }

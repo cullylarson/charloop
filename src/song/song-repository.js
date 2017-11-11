@@ -26,13 +26,13 @@ module.exports = function(songsDir) {
             .catch(_ => Promise.resolve(false))
     }
 
-    function create() {
+    function create(bpm) {
         const createdStamp = Date.now()
         const modifiedStamp = createdStamp
 
         return generateNewSongId()
             .then(id => {
-                const songPath = path.join(songsDir, `${id}_${createdStamp}-${modifiedStamp}`)
+                const songPath = path.join(songsDir, `${id}_${bpm}_${createdStamp}-${modifiedStamp}`)
 
                 return promisify(fs.mkdir)(songPath)
                     .then(_ => Promise.resolve({id, songPath}))
@@ -145,12 +145,14 @@ module.exports = function(songsDir) {
                 return compose(
                     x => {
                         const id = x[0]
-                        const stamps = x[1].split('-')
+                        const bpm = x[1]
+                        const stamps = x[2].split('-')
 
                         return Song(
                             id,
                             idToTitle(id),
                             songFolder,
+                            bpm,
                             stamps[0],
                             stamps[1]
                         )

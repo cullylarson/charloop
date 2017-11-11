@@ -2,13 +2,97 @@ const {List, Item} = require('../list')
 const {StandardBList} = require('../menu')
 const {record} = require('../audio')
 const {
+    prop,
     forEach,
 } = require('ramda')
 
 const create = (songRepository) => (go, screen, bus, data) => {
-    songRepository.create()
-        .then(song => go('/song/view', {id: song.id}))
-        .catch(_ => go('/', {error: "Couldn't create that song!"}))
+    const bpm = parseInt(prop('bpm', data))
+
+    if(bpm) {
+        songRepository.create(bpm)
+            .then(song => go('/song/view', {id: song.id}))
+            .catch(_ => go('/', {error: "Couldn't create that song!"}))
+    }
+    else {
+        const bList = StandardBList(screen, {label: 'your songs'})
+
+        const list = List(bList)
+        let bpm = 80
+
+        const bpmToTitle = (bpm) => `Beats per minute: ${bpm}`
+
+        list.addAll([
+            Item('Back', {
+                onEnter: () => {
+                    go('/', {})
+                },
+            }),
+            Item(bpmToTitle(bpm), {
+                isEngageable: true,
+                onUp: () => {
+                    if(bpm >= 200) return
+                    bpm++
+                    list.setSelectedTitle(bpmToTitle(bpm))
+                },
+                onDown: () => {
+                    if(bpm <= 20) return
+                    bpm--
+                    list.setSelectedTitle(bpmToTitle(bpm))
+                },
+            }),
+            Item('Start', {
+                onEnter: () => {
+                    go('/song/create', {bpm})
+                },
+            }),
+        ])
+
+        screen.render()
+
+        ;(() => {
+            let isEngaged = false
+
+            bus.on('nav-enter', () => {
+                const selected = list.getSelected()
+
+                if(selected.data.isEngageable) {
+                    isEngaged = !isEngaged
+
+                    if(isEngaged) list.engage()
+                    else list.disengage()
+
+                    screen.render()
+                }
+
+                selected.data.onEnter && selected.data.onEnter()
+            })
+
+            bus.on('nav-up', () => {
+                if(isEngaged) {
+                    const selected = list.getSelected()
+                    selected.data.onUp && selected.data.onUp()
+                }
+                else {
+                    list.up()
+                }
+
+                screen.render()
+            })
+
+            bus.on('nav-down', () => {
+                if(isEngaged) {
+                    const selected = list.getSelected()
+                    selected.data.onDown && selected.data.onDown()
+                }
+                else {
+                    list.down()
+                }
+
+                screen.render()
+            })
+        })()
+    }
 }
 
 const view = (songRepository) => (go, screen, bus, data) => {

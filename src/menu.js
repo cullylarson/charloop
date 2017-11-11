@@ -3,6 +3,7 @@ const blessed = require('blessed')
 
 const colors = {
     HotPink2: [215, 95, 175],
+    CornflowerBlue: [95, 135, 255],
 }
 
 const StandardBList = (screen, {label}) => {
@@ -25,6 +26,7 @@ const StandardBList = (screen, {label}) => {
         right: 0,
         bottom: 0,
         align: 'center',
+        tags: true,
         border: {
             type: 'line',
         },
@@ -41,6 +43,7 @@ const StandardBList = (screen, {label}) => {
 }
 
 module.exports = {
+    colors,
     StandardBList,
 }
 
