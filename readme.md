@@ -269,6 +269,23 @@ I set things up to login to a specific user on startup and run the project app.
     clear > /etc/issue
     ```
 
+## Soft Power
+
+I want to use a "soft power" switch to turn the Raspi on/off (because it's a computer, yo). I don't want it to consume any power while it's off. I came up with an idea that I think will work. I'll include a schematic and a state machien diagram hopefully. It uses an ATTiny85. The code is in the `soft-power` folder.
+
+### Compile/Install
+
+_NOTE: The makefile uses `avr-gcc` and `avrdude` to compile and upload. It also assumes you're using a `usbtiny` programmer, like the Sparkfun Pocket AVR Programmer._
+
+1.  Connect your programmer
+
+1.  Compile and upload
+
+    ```
+    $ cd soft-power
+    $ make upload
+    ```
+
 ## Parts List
 
 - [Raspberry Pi 3 - Model B](https://www.adafruit.com/product/3055)
