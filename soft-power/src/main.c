@@ -9,7 +9,7 @@
 
 enum State {
     S_INITIAL, // the initial state of the device, which is essentially off
-    S_OFF, // the entire device is 'off'
+    S_SHUTDOWN, // raspi is shut down
     S_ON_BOOTING, // power switch on, raspi is booting
     S_OFF_BOOTING, // power switch off, raspi is booting
     S_ON_RUNNING, // power switch is on, raspi is running
@@ -47,7 +47,7 @@ int main(void) {
                     _currentState = S_ON_BOOTING;
                 }
                 break;
-            case S_OFF:
+            case S_SHUTDOWN:
                 // turned on
                 if(deviceOn()) {
                     // make sure it's getting power, even if switch gets turned off
@@ -89,8 +89,8 @@ int main(void) {
                 if(raspiIsShutdown()) {
                     // TODO -- cancel shutdown timer
                     if(deviceOn()) {
-                        // the OFF state will take care of starting back up (oddly enough)
-                        _currentState = S_OFF;
+                        // the SHUTDOWN state will take care of starting back up (oddly enough)
+                        _currentState = S_SHUTDOWN;
                     }
                     // device is off
                     else {
