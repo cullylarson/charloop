@@ -10,9 +10,11 @@ void setupPins() {
 
     // set input pins (low)
     ONOFF_DDR &= ~(1 << ONOFF);
-    STATUS_DDR &= ~(1 << STATUS);
+    RBOOTED_DDR &= ~(1 << RBOOTED);
+    RSTOPPED_DDR &= ~(1 << RSTOPPED);
 
-    // start low, which disables the pull-up resistors, and also means that reading a 1 indicates button pressed and reading 0 indicates no button pressed
-    ONOFF_PORT &= ~(1 << ONOFF);
-    STATUS_PORT &= ~(1 << STATUS);
+    // start high, which enables the pull-up resistors, and also means that reading a 0 indicates button pressed and reading 1 indicates no button pressed
+    ONOFF_PORT |= (1 << ONOFF);
+    RBOOTED_PORT |= (1 << RBOOTED);
+    RSTOPPED_PORT |= (1 << RSTOPPED);
 }

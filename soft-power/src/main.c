@@ -5,11 +5,12 @@
 #include <util/delay.h>
 #include "pins.h"
 
-// TODO -- add a timer for deciding whether to force power off if raspi hasn't shut down
+// how long to wait to force a shutdown, in milliseconds
+#define SHUTDOWN_TIME_LIMIT 25000
 
 enum State {
     S_INITIAL, // the initial state of the device, which is essentially off
-    S_SHUTDOWN, // raspi is shut down
+    S_DOWN, // raspi is shut down
     S_ON_BOOTING, // power switch on, raspi is booting
     S_OFF_BOOTING, // power switch off, raspi is booting
     S_ON_RUNNING, // power switch is on, raspi is running
@@ -17,9 +18,13 @@ enum State {
     S_STOPPING, // raspi is shutting down
 };
 
-enum State _currentState;
+volatile uint16_t _shutdownTimer = 0;
+volatile uint16_t _blinkTimer = 0;
+
+volatile enum State _currentState;
 
 void setup();
+void setupTimer();
 uint8_t deviceOn();
 uint8_t deviceOff();
 void resetRaspi();
@@ -29,6 +34,10 @@ void shutdownRaspi();
 void cancelShutdown();
 void powerRaspi();
 void cutPower();
+uint8_t shutdownTimeReached();
+void resetShutdownTimer();
+void ledOn();
+void ledOff();
 
 int main(void) {
     setup();
@@ -47,7 +56,7 @@ int main(void) {
                     _currentState = S_ON_BOOTING;
                 }
                 break;
-            case S_SHUTDOWN:
+            case S_DOWN:
                 // turned on
                 if(deviceOn()) {
                     // make sure it's getting power, even if switch gets turned off
@@ -65,6 +74,7 @@ int main(void) {
                 }
                 else if(raspiBooted()) {
                     _currentState = S_ON_RUNNING;
+                    ledOn();
                 }
                 break;
             case S_OFF_BOOTING:
@@ -73,6 +83,7 @@ int main(void) {
                 }
                 else if(raspiBooted()) {
                     _currentState = S_OFF_RUNNING;
+                    ledOn();
                 }
                 break;
             case S_ON_RUNNING:
@@ -82,15 +93,15 @@ int main(void) {
                 break;
             case S_OFF_RUNNING:
                 shutdownRaspi();
-                // TODO -- start shutdown timer
+                // the shutdown timer will start counting automatically once we transition, so reset it
+                resetShutdownTimer();
                 _currentState = S_STOPPING;
                 break;
             case S_STOPPING:
-                if(raspiIsShutdown()) {
-                    // TODO -- cancel shutdown timer
+                if(raspiIsShutdown() || shutdownTimeReached()) {
                     if(deviceOn()) {
-                        // the SHUTDOWN state will take care of starting back up (oddly enough)
-                        _currentState = S_SHUTDOWN;
+                        // the DOWN state will take care of starting back up (oddly enough)
+                        _currentState = S_DOWN;
                     }
                     // device is off
                     else {
@@ -98,7 +109,6 @@ int main(void) {
                         cutPower();
                     }
                 }
-                // TODO -- if shutdown timer limit reached, force power off
                 break;
         }
     }
@@ -106,8 +116,44 @@ int main(void) {
 
 void setup() {
     setupPins();
+    setupTimer();
 
     sei();
+}
+
+void setupTimer() {
+    // Timer/Counter 0
+
+    // 1000 Hz (1000000/((124+1)*8))
+
+    // CTC
+    TCCR0A |= (1 << WGM01);
+
+    // Prescaler 8
+    TCCR0B |= (1 << CS01);
+
+    // count to this value
+    OCR0A = 124;
+
+    // enable compare A match interrupt
+    TIMSK0 |= (1 << OCIE0A);
+}
+
+// about 1000 times a second (i.e. once every 1ms)
+ISR(TIM0_COMPA_vect) {
+    // if the current state is S_STOPPING, then we need to be counting for shutdown
+    if(_currentState == S_STOPPING) {
+        _shutdownTimer++;
+    }
+    else if(_currentState == S_ON_BOOTING || _currentState == S_OFF_BOOTING) {
+        _blinkTimer++;
+
+        // blink the light
+        if(_blinkTimer >= 700) {
+            _blinkTimer = 0;
+            TOGGLE(LED_PORT, LED);
+        }
+    }
 }
 
 uint8_t deviceOn() {
@@ -121,21 +167,22 @@ uint8_t deviceOff() {
 // tells the raspi to turn on, if it's shut down
 void resetRaspi() {
     GOHI(RESET_PORT, RESET);
-    _delay_ms(10);
+    _delay_ms(100);
     GOLO(RESET_PORT, RESET);
 }
 
 uint8_t raspiBooted() {
-    return READ(STATUS_IN, STATUS);
+    return READ(RBOOTED_IN, RBOOTED);
 }
 
 uint8_t raspiIsShutdown() {
-    // TODO
-    return 0; // stub
+    return !READ(RSTOPPED_IN, RSTOPPED);
 }
 
 void shutdownRaspi() {
     GOHI(SHUTDOWN_PORT, SHUTDOWN);
+    _delay_ms(100);
+    GOLO(SHUTDOWN_PORT, SHUTDOWN);
 }
 
 void cancelShutdown() {
@@ -148,4 +195,20 @@ void powerRaspi() {
 
 void cutPower() {
     GOLO(PWR_PORT, PWR);
+}
+
+void ledOn() {
+    GOHI(LED_PORT, LED);
+}
+
+void ledOff() {
+    GOLO(LED_PORT, LED);
+}
+
+void resetShutdownTimer() {
+    _shutdownTimer = 0;
+}
+
+uint8_t shutdownTimeReached() {
+    return _shutdownTimer >= SHUTDOWN_TIME_LIMIT;
 }

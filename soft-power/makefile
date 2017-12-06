@@ -1,5 +1,5 @@
-GCC_DEVICE  = attiny85
-DUDE_DEVICE = t85
+GCC_DEVICE  = attiny84
+DUDE_DEVICE = t84
 CLOCK       = 1000000            # 1Mhz
 PROGRAMMER  = -c usbtiny -P usb  # For using Sparkfun Pocket AVR Programmer
 FUSES      = -U lfuse:w:0x62:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m  # settings as taken from http://www.engbedded.com/fusecalc/
