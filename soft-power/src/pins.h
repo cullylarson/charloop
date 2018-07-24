@@ -4,7 +4,7 @@
 #define PINS_H
 
 // the main on/off indicator switch
-#define ONOFF           PA0
+#define ONOFF           PA3
 #define ONOFF_PORT      PORTA
 #define ONOFF_DDR       DDRA
 #define ONOFF_IN        PINA
@@ -16,10 +16,10 @@
 #define RBOOTED_IN      PINA
 
 // stopped status of raspi (i.e. whether it's stopped/shutdown). hight means on, low means off/shutdown/stopped
-#define RSTOPPED        PB2
-#define RSTOPPED_PORT   PORTB
-#define RSTOPPED_DDR    DDRB
-#define RSTOPPED_IN     PINB
+#define RSTOPPED        PA0
+#define RSTOPPED_PORT   PORTA
+#define RSTOPPED_DDR    DDRA
+#define RSTOPPED_IN     PINA
 
 // power the device (i.e. via relay or mosfet)
 #define PWR             PA2
@@ -28,10 +28,10 @@
 #define PWR_IN          PINA
 
 // tell the raspi to shut down
-#define SHUTDOWN        PA3
-#define SHUTDOWN_PORT   PORTA
-#define SHUTDOWN_DDR    DDRA
-#define SHUTDOWN_IN     PINA
+#define SHUTDOWN        PB2
+#define SHUTDOWN_PORT   PORTB
+#define SHUTDOWN_DDR    DDRB
+#define SHUTDOWN_IN     PINB
 
 // an indicator LED
 #define LED             PB0
@@ -53,8 +53,7 @@
 
 #define TOGGLE(port, pn) port ^= (1<<pn)
 
-// if that bit is 0, the switch is being pressed. if it's 1, not being pressed
-#define READ(in, pn) (in & (1<<pn)) == 0
+#define READ(in, pn) (in & (1<<pn)) == (1<<pn)
 
 void setupPins();
 

@@ -141,11 +141,12 @@ void setupTimer() {
 
 // about 1000 times a second (i.e. once every 1ms)
 ISR(TIM0_COMPA_vect) {
-    // if the current state is S_STOPPING, then we need to be counting for shutdown
-    if(_currentState == S_STOPPING) {
-        _shutdownTimer++;
-    }
-    else if(_currentState == S_ON_BOOTING || _currentState == S_OFF_BOOTING) {
+    if(_currentState == S_ON_BOOTING || _currentState == S_OFF_BOOTING || _currentState == S_STOPPING) {
+        // if the current state is S_STOPPING, then we need to be counting for shutdown
+        if(_currentState == S_STOPPING) {
+            _shutdownTimer++;
+        }
+
         _blinkTimer++;
 
         // blink the light

@@ -13,8 +13,8 @@ void setupPins() {
     RBOOTED_DDR &= ~(1 << RBOOTED);
     RSTOPPED_DDR &= ~(1 << RSTOPPED);
 
-    // start high, which enables the pull-up resistors, and also means that reading a 0 indicates button pressed and reading 1 indicates no button pressed
-    ONOFF_PORT |= (1 << ONOFF);
-    RBOOTED_PORT |= (1 << RBOOTED);
-    RSTOPPED_PORT |= (1 << RSTOPPED);
+    // start low, which disables the pull-up resistors
+    ONOFF_PORT |= (0 << ONOFF);
+    RBOOTED_PORT |= (0 << RBOOTED);
+    RSTOPPED_PORT |= (0 << RSTOPPED);
 }
