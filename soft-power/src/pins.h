@@ -45,6 +45,18 @@
 #define RESET_DDR       DDRB
 #define RESET_IN        PINB
 
+// sends battery level (data)
+#define BATT_STATUS_DATA      PB2
+#define BATT_STATUS_DATA_PORT PORTB
+#define BATT_STATUS_DATA_DDR  DDRB
+#define BATT_STATUS_DATA_IN   PINB
+
+// sends battery level (clock)
+#define BATT_STATUS_CLK      PA7
+#define BATT_STATUS_CLK_PORT PORTA
+#define BATT_STATUS_CLK_DDR  DDRA
+#define BATT_STATUS_CLK_IN   PINA
+
 // write digital "high" to pin <pn> on port <port>
 #define GOHI(port, pn) port |= (1<<pn)
 

@@ -7,6 +7,8 @@ void setupPins() {
     SHUTDOWN_DDR |= (1 << SHUTDOWN);
     LED_DDR |= (1 << LED);
     RESET_DDR |= (1 << RESET);
+    BATT_STATUS_DATA_DDR |= (1 << BATT_STATUS_DATA);
+    BATT_STATUS_CLK_DDR |= (1 << BATT_STATUS_CLK);
 
     // set input pins (low)
     ONOFF_DDR &= ~(1 << ONOFF);
