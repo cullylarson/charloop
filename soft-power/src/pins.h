@@ -4,7 +4,7 @@
 #define PINS_H
 
 // the main on/off indicator switch
-#define ONOFF           PA3
+#define ONOFF           PA2
 #define ONOFF_PORT      PORTA
 #define ONOFF_DDR       DDRA
 #define ONOFF_IN        PINA
@@ -22,7 +22,7 @@
 #define RSTOPPED_IN     PINA
 
 // power the device (i.e. via relay or mosfet)
-#define PWR             PA2
+#define PWR             PA3
 #define PWR_PORT        PORTA
 #define PWR_DDR         DDRA
 #define PWR_IN          PINA
@@ -46,13 +46,13 @@
 #define RESET_IN        PINB
 
 // sends battery level (data)
-#define BATT_STATUS_DATA      PB2
-#define BATT_STATUS_DATA_PORT PORTB
-#define BATT_STATUS_DATA_DDR  DDRB
-#define BATT_STATUS_DATA_IN   PINB
+#define BATT_STATUS_DATA      PA7
+#define BATT_STATUS_DATA_PORT PORTA
+#define BATT_STATUS_DATA_DDR  DDRA
+#define BATT_STATUS_DATA_IN   PINA
 
 // sends battery level (clock)
-#define BATT_STATUS_CLK      PA7
+#define BATT_STATUS_CLK      PA6
 #define BATT_STATUS_CLK_PORT PORTA
 #define BATT_STATUS_CLK_DDR  DDRA
 #define BATT_STATUS_CLK_IN   PINA

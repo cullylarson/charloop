@@ -12,9 +12,9 @@
 // how long to wait to force a shutdown, in milliseconds
 #define SHUTDOWN_TIME_LIMIT 35000
 // how often to read the battery voltage
-#define BATTERY_VOLTAGE_READ_FREQUENCY 20000
+#define BATTERY_VOLTAGE_READ_FREQUENCY 5000
 // the value of the battery voltage ADC when we should shut down
-#define BATTERY_VOLTAGE_FORCE_SHUTDOWN 1000 // TODO
+#define BATTERY_VOLTAGE_FORCE_SHUTDOWN 100 // TODO
 // percentage difference between voltage measurements within which we'll
 // consider the measurements "the same"
 #define BATTERY_VOLTAGE_ACCEPTABLE_MEASURE_DIFF 0.05
@@ -215,7 +215,10 @@ void onBatteryVoltageUpdate(uint16_t batteryVoltage) {
 
         // the percentage difference of the new reading to the last reading.
         // the value is close enough.
-        if((voltageDifference / _batteryVoltageTemp) <= BATTERY_VOLTAGE_ACCEPTABLE_MEASURE_DIFF) {
+        if(
+            (_batteryVoltageTemp == 0 && voltageDifference == 0)
+            || (voltageDifference / _batteryVoltageTemp) <= BATTERY_VOLTAGE_ACCEPTABLE_MEASURE_DIFF
+        ) {
             // we've performed enough reads
             if(_batteryVoltageNumReads >= BATTERY_VOLTAGE_NUM_READS) {
                 _batteryVoltageNumReads = 0;
@@ -246,7 +249,6 @@ void onBatteryVoltageUpdate(uint16_t batteryVoltage) {
 void sendBatteryVoltage() {
     // start the clock high
     uint8_t clock = 1;
-    uint16_t voltageTemp = _batteryVoltage;
     uint8_t batteryBit;
     uint8_t i;
 
@@ -255,8 +257,8 @@ void sendBatteryVoltage() {
     clock = sendBatteryVoltageBit(1, clock);
     clock = sendBatteryVoltageBit(1, clock);
 
-    for(i = 0; i <= 10; i++) {
-        batteryBit = _batteryVoltage & 0b0000000001;
+    for(i = 0; i < 10; i++) {
+        batteryBit = (_batteryVoltage >> i) & 0b0000000001;
         clock = sendBatteryVoltageBit(batteryBit, clock);
     }
 
@@ -277,7 +279,7 @@ uint8_t sendBatteryVoltageBit(uint8_t bit, uint8_t clock) {
 }
 
 uint8_t batteryTooLow() {
-    return _batteryVoltage <= BATTERY_VOLTAGE_FORCE_SHUTDOWN;
+    return _batteryVoltage < BATTERY_VOLTAGE_FORCE_SHUTDOWN;
 }
 
 void setupTimer() {
