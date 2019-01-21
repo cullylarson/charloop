@@ -25,6 +25,8 @@
 #define BATTERY_VOLTAGE_RANGE_LO 635 // battery voltage is 3.1V
 // the number of times to read the voltage before deciding we have a good value
 #define BATTERY_VOLTAGE_NUM_READS 3
+// will value will be added to all battery ADC reads
+#define BATTERY_ADC_OFFSET -23 // for some reason the ADC is a bit off. this eems to correct it.
 
 enum State {
     S_INITIAL, // the initial state of the device, which is essentially off
@@ -200,6 +202,9 @@ void startAdcConversion() {
 ISR(ADC_vect) {
     uint8_t low = ADCL; // need to read ADCL first (according to the datasheet)
     uint16_t batteryVoltage = (ADCH << 8) | low; // ADCH will have the left-most 2 bits, ADCL will have the right-most 8 bits (i.e. you get a 10-bit value)
+
+    batteryVoltage += BATTERY_ADC_OFFSET; // apply the offset
+
     onBatteryVoltageUpdate(batteryVoltage);
 }
 
