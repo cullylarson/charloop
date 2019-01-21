@@ -16,9 +16,9 @@
 #define BATTERY_VOLTAGE_READ_FREQUENCY 5000
 // the value of the battery voltage ADC when we should shut down
 #define BATTERY_VOLTAGE_FORCE_SHUTDOWN 652 // 652 is 8%
-// percentage difference between voltage measurements within which we'll
+// difference between voltage measurements within which we'll
 // consider the measurements "the same"
-#define BATTERY_VOLTAGE_ACCEPTABLE_MEASURE_DIFF 0.05
+#define BATTERY_VOLTAGE_ACCEPTABLE_MEASURE_DIFF 3
 // this value of the battery voltage ADC will be considered 100% battery
 #define BATTERY_VOLTAGE_RANGE_HI 852 // battery voltage is 4.16V
 // this value of the battery voltage ADC will be considered 0% battery
@@ -225,7 +225,7 @@ void onBatteryVoltageUpdate(uint16_t batteryVoltage) {
         // the value is close enough.
         if(
             (_batteryVoltageTemp == 0 && voltageDifference == 0)
-            || ((float) voltageDifference / (float) _batteryVoltageTemp) <= BATTERY_VOLTAGE_ACCEPTABLE_MEASURE_DIFF
+            || voltageDifference <= BATTERY_VOLTAGE_ACCEPTABLE_MEASURE_DIFF
         ) {
             // we've performed enough reads
             if(_batteryVoltageNumReads >= BATTERY_VOLTAGE_NUM_READS) {
