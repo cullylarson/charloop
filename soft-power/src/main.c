@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdint.h>
+#include <math.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
@@ -14,14 +15,14 @@
 // how often to read the battery voltage
 #define BATTERY_VOLTAGE_READ_FREQUENCY 5000
 // the value of the battery voltage ADC when we should shut down
-#define BATTERY_VOLTAGE_FORCE_SHUTDOWN 100 // TODO
+#define BATTERY_VOLTAGE_FORCE_SHUTDOWN 652 // 652 is 8%
 // percentage difference between voltage measurements within which we'll
 // consider the measurements "the same"
 #define BATTERY_VOLTAGE_ACCEPTABLE_MEASURE_DIFF 0.05
 // this value of the battery voltage ADC will be considered 100% battery
-#define BATTERY_VOLTAGE_RANGE_HI 10000 // TODO
+#define BATTERY_VOLTAGE_RANGE_HI 852 // battery voltage is 4.16V
 // this value of the battery voltage ADC will be considered 0% battery
-#define BATTERY_VOLTAGE_RANGE_LO 1000 // TODO
+#define BATTERY_VOLTAGE_RANGE_LO 635 // battery voltage is 3.1V
 // the number of times to read the voltage before deciding we have a good value
 #define BATTERY_VOLTAGE_NUM_READS 3
 
@@ -42,6 +43,7 @@ volatile uint16_t _batteryVoltage = 0;
 volatile uint16_t _batteryVoltageTemp = 0;
 volatile uint16_t _batteryVoltageNumReads = 0;
 volatile uint16_t _batteryVoltageReadTimer = 0;
+volatile uint8_t _batterySendClock = 1; // start clock high
 
 volatile enum State _currentState;
 
@@ -64,8 +66,14 @@ void setupAdc();
 void onBatteryVoltageUpdate(uint16_t);
 void startAdcConversion();
 uint8_t batteryTooLow();
+void sendBatteryStatus();
+uint8_t getBatteryPercent();
 void sendBatteryVoltage();
-uint8_t sendBatteryVoltageBit(uint8_t, uint8_t);
+void sendBatteryPercent();
+void sendPacket();
+void sendSyncedPacket(uint16_t);
+void sendSyncedPacketDouble(uint16_t, uint16_t);
+void sendBatteryStatusBit(uint8_t);
 
 int main(void) {
     setup();
@@ -217,7 +225,7 @@ void onBatteryVoltageUpdate(uint16_t batteryVoltage) {
         // the value is close enough.
         if(
             (_batteryVoltageTemp == 0 && voltageDifference == 0)
-            || (voltageDifference / _batteryVoltageTemp) <= BATTERY_VOLTAGE_ACCEPTABLE_MEASURE_DIFF
+            || ((float) voltageDifference / (float) _batteryVoltageTemp) <= BATTERY_VOLTAGE_ACCEPTABLE_MEASURE_DIFF
         ) {
             // we've performed enough reads
             if(_batteryVoltageNumReads >= BATTERY_VOLTAGE_NUM_READS) {
@@ -225,7 +233,7 @@ void onBatteryVoltageUpdate(uint16_t batteryVoltage) {
 
                 // finally, save the voltage
                 _batteryVoltage = batteryVoltage;
-                sendBatteryVoltage();
+                sendBatteryStatus();
             }
             // do another read
             else {
@@ -243,39 +251,88 @@ void onBatteryVoltageUpdate(uint16_t batteryVoltage) {
     }
 }
 
-// send the battery voltage as a value between 0 and 100
-// 100 is 0b1100100, so will need to send 7 bits.
-// will send the least significant bit first.
-void sendBatteryVoltage() {
-    // start the clock high
-    uint8_t clock = 1;
-    uint8_t batteryBit;
-    uint8_t i;
-
-    // send three 1's
-    clock = sendBatteryVoltageBit(1, clock);
-    clock = sendBatteryVoltageBit(1, clock);
-    clock = sendBatteryVoltageBit(1, clock);
-
-    for(i = 0; i < 10; i++) {
-        batteryBit = (_batteryVoltage >> i) & 0b0000000001;
-        clock = sendBatteryVoltageBit(batteryBit, clock);
-    }
-
-    // end low
-    sendBatteryVoltageBit(0, 0);
+void sendBatteryStatus() {
+    // see description of sendBatteryPercent for why adding 1 to battery
+    sendSyncedPacketDouble(_batteryVoltage, getBatteryPercent() + 1);
 }
 
-uint8_t sendBatteryVoltageBit(uint8_t bit, uint8_t clock) {
-    if(clock) { GOHI(BATT_STATUS_CLK_PORT, BATT_STATUS_CLK); }
-    else      { GOLO(BATT_STATUS_CLK_PORT, BATT_STATUS_CLK); }
+uint8_t getBatteryPercent() {
+    // anything below this is 0%
+    if(_batteryVoltage <= BATTERY_VOLTAGE_RANGE_LO) return 0;
+    // anything above this is 100%
+    else if(_batteryVoltage >= BATTERY_VOLTAGE_RANGE_HI) return 100;
+    // the percent relative to our min-max range
+    else return floor((float) (_batteryVoltage - BATTERY_VOLTAGE_RANGE_LO) / (float) (BATTERY_VOLTAGE_RANGE_HI - BATTERY_VOLTAGE_RANGE_LO) * 100);
+}
 
+// send the raw battery voltage
+void sendBatteryVoltage() {
+    sendSyncedPacket(_batteryVoltage);
+}
+
+// send the battery voltage as a percentage. since cannot send 0 (see sendSyncedPacket),
+// will send as a value between 1 and 101 (where 1 is 0% and 101 is 100%).
+void sendBatteryPercent() {
+    sendSyncedPacket(getBatteryPercent() + 1);
+}
+
+// sends a packet with a preamble to enable syncing on the receiving end.
+// the preamble is just a packet with data of all 0s.
+// will not allow a data value of 0 to be sent. if data is 0, will send 1 instead.
+// this is because the sync packet is 0. if data could be 0 too, the data could be
+// confused with the sync packet by the receiver.
+void sendSyncedPacket(uint16_t data) {
+    // data can't be 0
+    if(data == 0) data = 1;
+
+    sendPacket(0); // the sync packet
+    sendPacket(data);
+}
+
+// sends two data packets after the preamble
+void sendSyncedPacketDouble(uint16_t data1, uint16_t data2) {
+    // data can't be 0
+    if(data1 == 0) data1 = 1;
+    if(data2 == 0) data2 = 1;
+
+    sendPacket(0); // the sync packet
+    sendPacket(data1);
+    sendPacket(data2);
+}
+
+// send a packet of 10 bits. the format of the packet is 11<binary data>11
+// will send the most significant digit of the binary data first.
+void sendPacket(uint16_t data) {
+    uint8_t bit;
+    int8_t i; // can't be unsigned; needs to be able to go negative to exit loop
+
+    // send two 1's
+    sendBatteryStatusBit(1);
+    sendBatteryStatusBit(1);
+
+    // send the packet (most significant digit first)
+    for(i = 9; i >= 0; i--) {
+        bit = (data >> i) & 0b0000000001;
+        sendBatteryStatusBit(bit);
+    }
+
+    // send two 1's
+    sendBatteryStatusBit(1);
+    sendBatteryStatusBit(1);
+}
+
+// sends a bit. flips the _batterySendClock bit AFTER sending.
+void sendBatteryStatusBit(uint8_t bit) {
+    // send the data bit first so it will be ready to read when the clock is sent
     if(bit) { GOHI(BATT_STATUS_DATA_PORT, BATT_STATUS_DATA); }
     else    { GOLO(BATT_STATUS_DATA_PORT, BATT_STATUS_DATA); }
 
-    _delay_ms(10);
+    if(_batterySendClock) { GOHI(BATT_STATUS_CLK_PORT, BATT_STATUS_CLK); }
+    else                  { GOLO(BATT_STATUS_CLK_PORT, BATT_STATUS_CLK); }
 
-    return !clock;
+    _batterySendClock = !_batterySendClock;
+
+    _delay_ms(10);
 }
 
 uint8_t batteryTooLow() {
