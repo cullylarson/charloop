@@ -269,6 +269,26 @@ I set things up to login to a specific user on startup and run the project app.
     clear > /etc/issue
     ```
 
+## Disable Bluetooth
+
+Bluetooth was causing a pin to stay high, that I was hoping to use to determine when the Raspi shut down. Also, bluetooth isn't used and will just waste power.
+
+1. Add this to `/boot/config.txt`:
+
+```
+# Disable Bluetooth
+dtoverlay=pi3-disable-bt
+```
+
+1. Disable related services:
+
+```
+sudo systemctl disable hciuart.service
+sudo systemctl disable bluetooth.service
+```
+
+1. Restart
+
 ## Soft Power
 
 I want to use a "soft power" switch to turn the Raspi on/off (because it's a computer, yo). I don't want it to consume any power while it's off. I came up with an idea that I think will work. I'll include a schematic and a state machien diagram hopefully. It uses an ATTiny85. The code is in the `soft-power` folder.
