@@ -1,6 +1,6 @@
 const {List, Item} = require('../list')
 const {StandardBList} = require('../menu')
-const {record} = require('../audio')
+const {Recorder} = require('../audio')
 const {
     prop,
     forEach,
@@ -97,9 +97,9 @@ const create = (songRepository) => (go, screen, bus, data) => {
 
 const view = (songRepository) => (go, screen, bus, data) => {
     if(!data.id) go('/song/list', {error: "Couldn't find that song!"})
-    const recording = data.recording || null
+    const recorder = data.recorder || null
     const recordingTrack = data.recordingTrack || null
-    if(recording && !recordingTrack) go('/song/view', {id: data.id, error: 'Started recording without a track. Not sure how that happened. Try again.'})
+    if(recorder && !recordingTrack) go('/song/view', {id: data.id, error: 'Started recording without a track. Not sure how that happened. Try again.'})
 
     songRepository.get(data.id)
         .then(song => {
@@ -131,13 +131,13 @@ const view = (songRepository) => (go, screen, bus, data) => {
 
             bus.on('start-recording', () => {
                 // already recording
-                if(recording) return
+                if(recorder) return
 
                 songRepository.addNextTrack(info.song, info.tracks)
                     .then(nextTrack => {
                         go('/song/view', {
                             id: data.id,
-                            recording: record(nextTrack.filePath),
+                            recorder: Recorder(), // (nextTrack.filePath),
                             recordingTrack: nextTrack,
                         })
                     })
@@ -146,9 +146,9 @@ const view = (songRepository) => (go, screen, bus, data) => {
 
             bus.on('stop-recording', () => {
                 // not recording
-                if(!recording) return
+                if(!recorder) return
 
-                recording.stop()
+                recorder.stop()
                 go('/song/view', {id: data.id})
             })
 

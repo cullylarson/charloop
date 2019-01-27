@@ -4,7 +4,8 @@
   "description": "A loop recorder for raspberry pi.",
   "scripts": {
     "lint:watch": "esw -w src",
-    "start": "node src/main.js"
+    "start": "node src/main.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -18,6 +19,7 @@
     "detect-rpi": "^1.2.0",
     "eslint": "^4.7.2",
     "eslint-watch": "^3.1.3",
+    "jest": "^23.4.1",
     "mic": "^2.1.2",
     "path": "^0.12.7",
     "ramda": "^0.25.0",

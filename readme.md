@@ -4,6 +4,18 @@
 
 ## App
 
+### Soft Power Integration
+
+These are the things the app is resposible for doing, in order to integrate with the soft power controller.
+
+1. Set pin 18 (RSTOPPED) HIGH. It should already be high because it's used by the UART to transmit. But this keeps it high until the raspi is very nearly shutdown.
+
+1. Set pin 12 (RBOOTED) HIGH. This will tell the soft power controller that the raspi has fully booted.
+
+1. Read pin 13 (SHUTDOWN). On HIGH, shut the raspi down.
+
+1. Read pins 10 (BATTERY STATUS DATA) and 11 (BATTERY STATUS CLOCK) to get the current battery level.
+
 ### Dev
 
 ```
@@ -283,7 +295,6 @@ dtoverlay=pi3-disable-bt
 1. Disable related services:
 
 ```
-sudo systemctl disable hciuart.service
 sudo systemctl disable bluetooth.service
 ```
 
