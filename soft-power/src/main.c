@@ -76,6 +76,8 @@ void sendPacket();
 void sendSyncedPacket(uint16_t);
 void sendSyncedPacketDouble(uint16_t, uint16_t);
 void sendBatteryStatusBit(uint8_t);
+uint16_t buildStateReport();
+uint16_t buildIOReport();
 
 int main(void) {
     setup();
@@ -144,6 +146,13 @@ int main(void) {
                 break;
             case S_STOPPING:
                 if(raspiIsShutdown() || shutdownTimeReached()) {
+                    // wait a little bit to make sure the raspi is really shut down.
+                    // this is necessary because the pin idicating shutdown goes low
+                    // a few seconds before actual shutdown.
+                    if(raspiIsShutdown()) {
+                        _delay_ms(5000);
+                    }
+
                     if(batteryTooLow()) {
                         // turn everything off, even if the power switch is on. entering
                         // the S_BATTERY_LOW state will keep us from starting up again.
@@ -258,7 +267,38 @@ void onBatteryVoltageUpdate(uint16_t batteryVoltage) {
 
 void sendBatteryStatus() {
     // see description of sendBatteryPercent for why adding 1 to battery
-    sendSyncedPacketDouble(_batteryVoltage, getBatteryPercent() + 1);
+    // sendSyncedPacketDouble(_batteryVoltage, getBatteryPercent() + 1);
+
+    sendPacket(0); // stub
+    sendPacket(_batteryVoltage); // stub
+    sendPacket(getBatteryPercent() + 1); // stub
+    sendPacket(buildStateReport()); // stub
+    sendPacket(buildIOReport()); // stub
+}
+
+uint16_t buildStateReport() {
+    uint16_t report = 0b0000001000000000;
+
+    report |= 0b00000001 & ((_currentState == S_BATTERY_LOW)  << 0);
+    report |= 0b00000010 & ((_currentState == S_STOPPING)     << 1);
+    report |= 0b00000100 & ((_currentState == S_OFF_RUNNING)  << 2);
+    report |= 0b00001000 & ((_currentState == S_ON_RUNNING)   << 3);
+    report |= 0b00010000 & ((_currentState == S_OFF_BOOTING)  << 4);
+    report |= 0b00100000 & ((_currentState == S_ON_BOOTING)   << 5);
+    report |= 0b01000000 & ((_currentState == S_DOWN)         << 6);
+    report |= 0b10000000 & ((_currentState == S_INITIAL)      << 7);
+
+    return report;
+}
+
+uint16_t buildIOReport() {
+    uint16_t report = 0b0000001000000000;
+
+    report |= 0b00000001 & (deviceOn()          << 0);
+    report |= 0b00000010 & (raspiBooted()       << 1);
+    report |= 0b00000100 & (raspiIsShutdown()   << 2);
+
+    return report;
 }
 
 uint8_t getBatteryPercent() {
@@ -412,7 +452,7 @@ uint8_t raspiIsShutdown() {
 
 void shutdownRaspi() {
     GOHI(SHUTDOWN_PORT, SHUTDOWN);
-    _delay_ms(100);
+    _delay_ms(1000);
     GOLO(SHUTDOWN_PORT, SHUTDOWN);
 }
 
