@@ -1,0 +1,203 @@
+<!--
+I created this to help me figure out how tracks of different lengths will line up,
+and when to start them based on when they were recorded, relative to other tracks.
+-->
+<html>
+    <head>
+        <title>charloop time/tempo</title>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.25.0/ramda.min.js"></script>
+
+        <style>
+            body {
+                padding: 0;
+                margin: 0;
+            }
+
+            .score-wrapper {
+                padding: 100px 0;
+            }
+
+            #score {
+                position: relative;
+            }
+
+            .track {
+                box-sizing: border-box;
+                padding: 5px 1px; /* need 1px on the left side so that the bar-lines line up correct. if you change the border width of the bar-lines, will need to change this too */
+                white-space: nowrap;
+            }
+
+            .bar-line {
+                z-index: -1;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                border-right: 3px solid #ebebeb;
+            }
+
+            .offset,
+            .sample {
+                display: inline-block;
+                box-sizing: border-box;
+                height: 20px;
+                border: 1px solid #333;
+                border-right-width: 0;
+            }
+
+            .offset:last-child,
+            .sample:last-child {
+                border-right-width: 1px;
+            }
+
+            .offset {
+                border-color: #888;
+                border-top-color: #555;
+                border-bottom-color: #555;
+                background: #555;
+            }
+        </style>
+
+        <script>
+
+const debug = R.curry((msg, x) => {
+    console.log(msg, x)
+    return x
+})
+
+function narr(n) {
+    const theArray = new Array(n)
+    for(let i = 0; i < n; i++) theArray[i] = undefined
+    return theArray
+}
+
+const appendChild = R.curry((el, child) => {
+    el.appendChild(child)
+})
+
+const elFromStr = str => {
+    const template = document.createElement('template')
+    template.innerHTML = str.trim()
+    const frag = template.content
+    const clonedChildren = [].slice.call(frag.childNodes, 0)
+    return clonedChildren.length
+        ? clonedChildren[0]
+        : null
+}
+
+const config = {
+    barWidth: 50,
+    barsPerTrack: 81,
+}
+
+const samples = [
+    {
+        bars: 1,
+        offset: 0,
+        color: '#f1c40f',
+    },
+    {
+        bars: 2,
+        offset: 2,
+        color: '#2ecc71',
+    },
+    {
+        bars: 3,
+        offset: 5,
+        color: '#3498db',
+    },
+    {
+        bars: 2,
+        offset: 7,
+        color: '#ecf0f1',
+    },
+    {
+        bars: 1,
+        offset: 10,
+        color: '#9b59b6',
+    },
+    {
+        bars: 3,
+        offset: 11,
+        color: '#e74c3c',
+    },
+    {
+        bars: 4,
+        offset: 14,
+        color: '#95a5a6',
+    },
+]
+
+const buildSample = (bgColor, width) => () => elFromStr(`<div class='sample' style='background-color: ${bgColor}; width: ${width}px;'></div>`)
+const buildOffset = (width) => elFromStr(`<div class='offset' style='width: ${width}px'></div>`)
+
+const getStartAt = (offset, bars) => {
+    // how many times would the sample have played, entirely, during the offset period
+    const numOccurancesInOffset = Math.floor(offset / bars)
+    // how many bars of space do we have left over after substracting the "full plays"
+    const leftoverBars = offset - (numOccurancesInOffset * bars)
+    // we need to start far enough into the sample to leave exactly leftoverBars of time left (so it takes up the last bit offset)
+    return bars - leftoverBars
+}
+
+const buildTrack = sample => {
+    const sampleWidth = config.barWidth * sample.bars
+    const offsetWidth = config.barWidth * sample.offset
+    const numSamples = Math.ceil((config.barsPerTrack - sample.offset) / sample.bars)
+
+    const startAt = getStartAt(sample.offset, sample.bars)
+    const leftoverBars = sample.bars - startAt
+    // how many 'full plays' of the sample happen during the offset
+    const fullOffsetPlays = Math.floor(sample.offset / sample.bars)
+
+    const sampleEls = R.compose(
+        R.map(buildSample(sample.color, sampleWidth)),
+        narr
+    )(numSamples)
+
+    const offsetEls = R.concat(
+        leftoverBars ? [buildOffset(leftoverBars * config.barWidth)] : [],
+        R.compose(
+            R.map(() => buildOffset(config.barWidth * sample.bars)),
+            narr
+        )(fullOffsetPlays)
+    )
+
+    const trackEl = elFromStr(`<div class='track'></div>`)
+    offsetEls.forEach(appendChild(trackEl))
+    sampleEls.forEach(appendChild(trackEl))
+    return trackEl
+}
+
+const buildBarLine = (left) => {
+    return elFromStr(`<div class='bar-line' style='left: ${left}px; width: ${config.barWidth}px;'></div>`)
+}
+
+window.addEventListener('load', () => {
+    const scoreEl = document.querySelector('#score')
+    if(!score) return
+
+    R.compose(
+        R.map(x => scoreEl.appendChild(x)),
+        R.map(i => buildBarLine(i * config.barWidth)),
+        x => [...x.keys()],
+        narr
+    )(config.barsPerTrack)
+
+    R.compose(
+        R.map(x => scoreEl.appendChild(x)),
+        R.map(buildTrack)
+    )(samples)
+})
+
+        </script>
+    </head>
+
+    <body>
+        <div class='score-wrapper'>
+            <div id="score">
+            </div>
+        </div>
+    </body>
+
+</html>

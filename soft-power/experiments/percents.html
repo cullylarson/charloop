@@ -1,0 +1,140 @@
+<html>
+    <head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.25.0/ramda.min.js"></script>
+
+        <style>
+        </style>
+
+        <script>
+            window.addEventListener('load', () => {
+                const toFixed = R.curry((fix, x) => Number((x).toFixed(fix)))
+
+                const innerHtml = R.curry((el, x) => {
+                    el.innerHTML = x
+                    return x
+                })
+
+                const inspect = R.curry((msg, x) => {
+                    console.log(msg, x)
+                    return x
+                })
+
+                const measureToMax = R.curry((range, measure) => {
+                    const [rangeMin, rangeMax] = range
+                    const [num, actual, divided] = measure
+
+                    return measureToProportionValue(divided, actual, rangeMax)
+                })
+
+                const measureToMin = R.curry((range, measure) => {
+                    const [rangeMin, rangeMax] = range
+                    const [num, actual, divided] = measure
+
+                    return measureToProportionValue(divided, actual, rangeMin)
+                })
+
+                const getPercent = R.curry((range, value) => {
+                    return (value - range[0]) / (range[1] - range[0])
+                })
+
+                const bookend = R.curry((l, r, x) => l + x + r)
+
+                // form: n1 / d1 = x / d2
+                const measureToProportionValue = R.curry((n1, d1, d2) => n1 * d2 / d1)
+
+                const average = xs => R.sum(xs) / xs.length
+
+                const actualRange = [3.1, 4.16]
+                const numFullRange = [0, 1023]
+                const dividedFullRange = [0, 3.319]
+
+                const measurements = [
+                    [805, 3.86, 2.52],
+                    [793, 3.8, 2.49],
+                    [788, 3.78, 2.48],
+                    [782, 3.75, 2.46],
+                    [773, 3.7, 2.433],
+                    [767, 3.68, 2.417],
+                    [762, 3.65, 2.403],
+                ]
+
+                const expectedNums = R.compose(
+                    R.map(measureToProportionValue(numFullRange[1], dividedFullRange[1])),
+                    R.map(R.prop(2)),
+                )(measurements)
+
+                const dividedRange = [
+                    R.compose(
+                        average,
+                        R.map(measureToMin(actualRange)),
+                    )(measurements),
+                    R.compose(
+                        average,
+                        R.map(measureToMax(actualRange)),
+                    )(measurements),
+                ]
+
+                const numRange = [
+                    measureToProportionValue(numFullRange[1], dividedFullRange[1], dividedRange[0]),
+                    measureToProportionValue(numFullRange[1], dividedFullRange[1], dividedRange[1]),
+                ]
+
+                R.compose(
+                    innerHtml(document.querySelector('#num-variation')),
+                    R.join('<br>'),
+                    R.map(x => `actual: ${x[0]}, expected: ${x[1]}, off by: ${toFixed(2, Math.abs(x[0] - x[1]))}`),
+                    R.map(x => [toFixed(2, x[0]), toFixed(2, x[1])]),
+                )(R.zip(
+                    R.map(R.prop(0), measurements),
+                    expectedNums,
+                ))
+
+                R.compose(
+                    innerHtml(document.querySelector('#percents')),
+                    R.join('<br>'),
+                    R.map(x => `num: ${x[0]}, expected num: ${x[3]}, actual: ${x[1]}, divided: ${x[2]}`),
+                    R.map(R.map(toFixed(2))),
+                    R.map(x => ([
+                        getPercent(numRange, x[0]),
+                        getPercent(numRange, x[3]),
+                        getPercent(actualRange, x[1]),
+                        getPercent(dividedRange, x[2]),
+                    ])),
+                    R.zipWith(R.append, expectedNums)
+                )(measurements)
+
+                R.compose(
+                    innerHtml(document.querySelector('#max-div')),
+                    R.join(', '),
+                    R.map(toFixed(2)),
+                    R.map(measureToMax(actualRange)),
+                )(measurements)
+
+                R.compose(
+                    innerHtml(document.querySelector('#min-div')),
+                    R.join(', '),
+                    R.map(toFixed(2)),
+                    R.map(measureToMin(actualRange)),
+                )(measurements)
+            })
+        </script>
+    </head>
+
+    <body>
+        <h2>Max Divided Voltage</h3>
+
+        <div id='max-div'></div>
+
+        <h2>Min Divided Voltage</h3>
+
+        <div id='min-div'></div>
+
+        <h2>Num Variation</h3>
+
+        <div id='num-variation'></div>
+
+        <h2>Percents</h3>
+
+        <div id='percents'></div>
+    </body>
+</html>

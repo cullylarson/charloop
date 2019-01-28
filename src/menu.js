@@ -1,13 +1,54 @@
 const blessed = require('blessed')
-const Bus = require('./bus')
+// const chalk = require('chalk')
 
 const colors = {
     HotPink2: [215, 95, 175],
+    CornflowerBlue: [95, 135, 255],
 }
 
-module.exports = function() {
-    const bus = Bus()
+const StandardBList = (screen, {label}) => {
+    blessed.Box({
+        parent: screen,
+        tags: true,
+        content: `{center}{bold}${label}{/}{/center}`,
+        top: 0,
+        height: 1,
+        width: '100%',
+        style: {
+            fg: 'yellow',
+        },
+    })
 
+    return blessed.List({
+        parent: screen,
+        top: 1,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        align: 'center',
+        tags: true,
+        border: {
+            type: 'line',
+        },
+        style: {
+            item: {
+                fg: 'white',
+            },
+            selected: {
+                fg: 'white',
+                bg: colors.HotPink2,
+            },
+        },
+    })
+}
+
+module.exports = {
+    colors,
+    StandardBList,
+}
+
+/*
+module.exports = function(trackList) {
     const program = blessed()
     program.alternateBuffer()
     program.hideCursor()
@@ -36,42 +77,25 @@ module.exports = function() {
         },
     })
 
-    list.setItems([
-        'one',
-        'two',
-        'three',
-        'four',
-        'five',
-        'six',
-        'seven',
-        'eight',
-        'nine',
-        'ten',
-    ])
+    list.setItems([])
 
-    screen.on('keypress', (str, key) => {
-        if(key.ctrl && key.name === 'c') bus.trigger('exit')
-        else if(key.name === 'up') bus.trigger('up')
-        else if(key.name === 'k') bus.trigger('up')
-        else if(key.name === 'down') bus.trigger('down')
-        else if(key.name === 'j') bus.trigger('down')
-        else if(key.name === 'enter') bus.trigger('enter')
-        else if(key.name === 'l') bus.trigger('enter')
-    })
-
-    list.select(0)
-
-    bus.on('up', () => {
-        list.up(1)
+    trackList.bus.on('add', ({idx, track}) => {
+        list.insertItem(idx, track.name)
         screen.render()
     })
 
-    bus.on('down', () => {
-        list.down(1)
+    trackList.bus.on('remove', ({idx}) => {
+        list.spliceItem(idx, 1)
+        screen.render()
+    })
+
+    trackList.bus.on('select', ({idx}) => {
+        list.select(idx)
         screen.render()
     })
 
     screen.render()
 
-    return bus
+    return screen
 }
+*/
