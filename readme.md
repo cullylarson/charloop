@@ -8,7 +8,7 @@
 
 These are the things the app is resposible for doing, in order to integrate with the soft power controller.
 
-1. Set pin 18 (RSTOPPED) HIGH. It should already be high because it's used by the UART to transmit. But this keeps it high until the raspi is very nearly shutdown.
+1. Set pin 8 (RSTOPPED) HIGH. It should already be high because it's used by the UART to transmit. But this keeps it high until the raspi is very nearly shutdown.
 
 1. Set pin 12 (RBOOTED) HIGH. This will tell the soft power controller that the raspi has fully booted.
 

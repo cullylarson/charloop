@@ -19,4 +19,7 @@ void setupPins() {
     ONOFF_PORT |= (0 << ONOFF);
     RBOOTED_PORT |= (0 << RBOOTED);
     RSTOPPED_PORT |= (0 << RSTOPPED);
+
+    // the reset pin needs to be normally high
+    GOHI(RESET_PORT, RESET);
 }

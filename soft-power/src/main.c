@@ -146,11 +146,11 @@ int main(void) {
                 break;
             case S_STOPPING:
                 if(raspiIsShutdown() || shutdownTimeReached()) {
-                    // wait a little bit to make sure the raspi is really shut down.
+                    // wait a little while to make sure the raspi is really shut down.
                     // this is necessary because the pin idicating shutdown goes low
-                    // a few seconds before actual shutdown.
+                    // a few seconds before complete shutdown.
                     if(raspiIsShutdown()) {
-                        _delay_ms(5000);
+                        _delay_ms(8000);
                     }
 
                     if(batteryTooLow()) {
@@ -437,9 +437,9 @@ uint8_t deviceOff() {
 
 // tells the raspi to turn on, if it's shut down
 void resetRaspi() {
-    GOHI(RESET_PORT, RESET);
-    _delay_ms(100);
     GOLO(RESET_PORT, RESET);
+    _delay_ms(100);
+    GOHI(RESET_PORT, RESET);
 }
 
 uint8_t raspiBooted() {
