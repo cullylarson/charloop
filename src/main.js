@@ -1,6 +1,7 @@
 const path = require('path')
 const isPi = require('detect-rpi')
 const RotaryEncoder = require('./rotary-encoder')
+const Button = require('./button')
 const Menu = require('./menu')
 const Bus = require('./bus')
 const {record} = require('./audio')
@@ -18,10 +19,34 @@ if(isPi()) {
 
 const rotaryMain = isPi()
     ? RotaryEncoder(rpio, {
-        right: 11,
-        left: 13,
-        push: 15,
+        right: 29,
+        left: 27,
+        push: 31,
     })
+    : Bus()
+
+const rotaryVolume = isPi()
+    ? RotaryEncoder(rpio, {
+        right: 35,
+        left: 33,
+        push: 37,
+    })
+    : Bus()
+
+const buttonRed = isPi()
+    ? Button(rpio, 38)
+    : Bus()
+
+const buttonGreen = isPi()
+    ? Button(rpio, 40)
+    : Bus()
+
+const buttonBlackTop = isPi()
+    ? Button(rpio, 36)
+    : Bus()
+
+const buttonBlackButton = isPi()
+    ? Button(rpio, 32)
     : Bus()
 
 const menu = Menu()
@@ -42,5 +67,13 @@ rotaryMain.on('push', () => {
         recording = record(path.join(__dirname, '..', 'output', 'test.wav'))
     }
 })
+
+rotaryVolume.on('push', () => console.log('volume push'))
+rotaryVolume.on('left', () => console.log('volume left'))
+rotaryVolume.on('right', () => console.log('volume right'))
+buttonGreen.on('push', () => console.log('green push'))
+buttonRed.on('push', () => console.log('red push'))
+buttonBlackTop.on('push', () => console.log('black top push'))
+buttonBlackButton.on('push', () => console.log('black bottom push'))
 
 menu.on('exit', () => process.exit())
